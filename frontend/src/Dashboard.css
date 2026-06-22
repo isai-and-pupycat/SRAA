@@ -1,0 +1,362 @@
+/* ==========================================================================
+   1. LAYOUT PRINCIPAL Y ESTRUCTURA BASE
+   ========================================================================== */
+.dashboard-layout {
+  display: flex;
+  width: 100vw;
+  min-height: 100vh;
+  background: #f4f6f9;
+  color: #2d3748;
+  font-family: 'Segoe UI', Roboto, sans-serif;
+}
+
+.main-content {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  overflow-y: auto; 
+}
+
+.workspace {
+  padding: 30px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  flex-grow: 1;
+  background: #f7fafc;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Distribución de las columnas de abajo (CORREGIDO Y UNIFICADO) */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 2fr 1.1fr; 
+  gap: 25px;
+  width: 100%;
+  box-sizing: border-box;
+  align-items: stretch;
+}
+
+/* ==========================================================================
+   2. SIDEBAR ESTILIZADO (MENÚ LATERAL)
+   ========================================================================== */
+.sidebar {
+  width: 280px;
+  background: linear-gradient(180deg, #002d62 0%, #001a3a 100%);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.15);
+}
+
+.sidebar-brand {
+  font-size: 1.6rem;
+  font-weight: 800;
+  text-align: center;
+  padding: 25px 0;
+  background: rgba(0, 0, 0, 0.1);
+  letter-spacing: 2px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sidebar-menu {
+  list-style: none;
+  padding: 15px 0;
+  margin: 0;
+}
+
+.sidebar-item {
+  padding: 14px 24px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #cbd5e1;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.sidebar-item i {
+  font-size: 1.1rem;
+  width: 20px;
+  transition: transform 0.3s ease;
+}
+
+.sidebar-item:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.sidebar-item.active {
+  color: #ffffff;
+  background: linear-gradient(90deg, rgba(0, 198, 255, 0.15) 0%, rgba(0, 198, 255, 0) 100%);
+  border-left: 4px solid #00c6ff;
+  font-weight: 600;
+}
+
+.sidebar-item:hover i {
+  transform: translateX(3px);
+}
+
+/* ==========================================================================
+   3. COMPONENTES DE INTERFAZ (HEADER, TARJETAS, PANELES)
+   ========================================================================== */
+.header-top {
+  background: #ffffff;
+  padding: 15px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+  z-index: 10;
+}
+
+.header-title h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #002d62;
+}
+
+.header-title span {
+  font-size: 0.95rem;
+  color: #a0aec0;
+  font-weight: 500;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f7fafc;
+  padding: 6px 16px;
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #4a5568;
+  border: 1px solid #e2e8f0;
+}
+
+.user-avatar {
+  background: #002d62;
+  color: white;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 0.8rem;
+  font-weight: bold;
+  box-shadow: 0 2px 5px rgba(0,45,98,0.2);
+}
+
+.metrics-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.card-metric {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  border-bottom: 4px solid #e2e8f0;
+  transition: transform 0.2s;
+}
+
+.card-metric:hover {
+  transform: translateY(-2px);
+}
+
+.card-metric.blue { border-bottom-color: #0072ff; }
+.card-metric.green { border-bottom-color: #2ed573; }
+.card-metric.orange { border-bottom-color: #ffa502; }
+
+.card-metric .value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.card-metric .label {
+  font-size: 0.85rem;
+  color: #718096;
+  font-weight: 600;
+  margin: 4px 0 0 0;
+}
+
+.card-metric .icon-box {
+  font-size: 1.8rem;
+  color: #a0aec0;
+  opacity: 0.7;
+}
+
+.panel-box {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+  min-width: 0;
+  overflow-x: auto; 
+}
+
+.panel-box h3 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #002d62;
+  border-bottom: 2px solid #edf2f7;
+  padding-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.activity-card {
+  border-left: 4px solid #cbd5e1;
+  padding: 12px 16px;
+  background: #f8fafc;
+  border-radius: 0 8px 8px 0;
+}
+
+.activity-card.blue { border-left-color: #0072ff; }
+.activity-card.green { border-left-color: #2ed573; }
+.activity-card.orange { border-left-color: #ffa502; }
+
+.activity-card .num {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1a202c;
+}
+
+.activity-card .txt {
+  font-size: 0.85rem;
+  color: #718096;
+  font-weight: 500;
+}
+
+.footer-upb {
+  background: #002d62;
+  color: #e2e8f0;
+  padding: 15px 40px;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  border-top: 3px solid #00c6ff;
+  margin-top: auto; 
+}
+
+/* ==========================================================================
+   4. MAQUETACIÓN DEL CALENDARIO INTERACTIVO (OPCIONAL/MANTENIDO)
+   ========================================================================== */
+.calendar-container {
+  width: 100%;
+}
+
+.calendar-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.calendar-controls h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #002d62;
+}
+
+.btn-calendar {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  padding: 5px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #4a5568;
+}
+
+.calendar-header-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.75rem;
+  color: #a0aec0;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background-color: #e2e8f0; 
+  border: 1px solid #e2e8f0;
+}
+
+.calendar-day {
+  background-color: #ffffff;
+  min-height: 85px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: relative;
+}
+
+.calendar-day.other-month {
+  background-color: #f8fafc;
+  color: #cbd5e1;
+}
+
+.day-number {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.day-number.today {
+  background: #002d62;
+  color: white;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.event-tag {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 3px 6px;
+  border-radius: 4px;
+  color: white;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.event-tag.green { background-color: #2ed573; }
+.event-tag.blue { background-color: #0072ff; }
+.event-tag.yellow { background-color: #ffa502; }
