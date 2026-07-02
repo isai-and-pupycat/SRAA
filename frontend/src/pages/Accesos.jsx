@@ -1,98 +1,126 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
 import './Accesos.css';
 
-const Accesos = () => {
+const sistemas = [
+  {
+    id: 'sraa',
+    icon: '&#128221;',
+    title: 'SRAA',
+    tag: 'Actividades academicas',
+    description:
+      'Sistema de Registro de Actividades Academicas, plataforma para la gestion, validacion y certificacion de evidencias docentes.',
+    action: 'Ingresar al Sistema',
+    theme: 'theme-blue',
+  },
+  {
+    id: 'sipreli',
+    icon: '&#128193;',
+    title: 'Sistema de Préstamos en Línea',
+    tag: 'SIPRELI',
+    description:
+      'Plataforma institucional para la solicitud, seguimiento y control de préstamos en línea.',
+    action: 'Visitar SIPRELI',
+    href: 'https://sipreli.ingenieriasupb.com/',
+    theme: 'theme-cyan',
+  },
+  {
+    id: 'sijup',
+    icon: '&#128100;',
+    title: 'Sistema de Justificaciones',
+    tag: 'SIJUP',
+    description: 'Plataforma institucional para registrar, consultar y dar seguimiento a justificaciones.',
+    action: 'Visitar SIJUP',
+    href: 'https://sijup.ingenieriasupb.com/login',
+    theme: 'theme-indigo',
+  },
+  {
+    id: 'biblioteca',
+    icon: '&#128218;',
+    title: 'Biblioteca Digital',
+    tag: 'Consulta digital',
+    description:
+      'Acervo digital universitario. Consulta de libros electronicos, tesis y revistas cientificas suscritas.',
+    action: 'Visitar Biblioteca',
+    href: 'https://elibro.net/es/lc/upb/login_usuario/?next=/es/lc/upb/inicio/',
+    theme: 'theme-green',
+  },
+  {
+    id: 'sice',
+    icon: '&#127891;',
+    title: 'Sistema Integral Universitario',
+    tag: 'Servicios escolares',
+    description:
+      'Portal de Servicios Escolares. Consulta de calificaciones, carga academica e historial del estudiante.',
+    action: 'Visitar SICE',
+    href: 'https://upb.dev.ozelot.it/Account/Login?ReturnUrl=%2F',
+    theme: 'theme-gold',
+  },
+  {
+    id: 'srpi',
+    icon: '&#128300;',
+    title: 'SRPI',
+    tag: 'Investigacion',
+    description:
+      'Sistema de Registro de Proyectos Institucionales. Repositorio de investigaciones y desarrollo tecnologico.',
+    action: 'Visitar SRPI',
+    href: 'https://srpi.ingenieriasupb.com/',
+    theme: 'theme-violet',
+  },
+];
+
+const Accesos = ({ alIrALogin }) => {
   return (
     <div className="accesos-body">
-      {/* BARRA SUPERIOR */}
       <header className="topbar-accesos">
-        <div className="topbar-left"></div>
         <div className="topbar-center">
-          {/* La ruta apunta directo a /img/ porque ya está en la carpeta public */}
           <img src="/img/logo-horizontal-upb@2x.png" alt="Logo institucional" />
         </div>
-        <div className="topbar-right"></div>
       </header>
 
-      <div className="brand-title">Portal de Sistemas Institucionales</div>
+      <main className="portal-shell">
+        <section className="portal-intro">
+          <span className="portal-kicker">Universidad Politecnica de Bacalar</span>
+          <h1>Portal de Sistemas Institucionales</h1>
+          <p>
+            Accede a las plataformas academicas, administrativas y de consulta
+            de la universidad desde un solo punto.
+          </p>
+        </section>
 
-      {/* CONTENEDOR DE TARJETAS */}
-      <section className="cards-container">
-        
-        {/* TARJETA 1: Tu sistema SRAA conectado al Login de React */}
-        <article className="card-institucional">
-          <div className="card-header-ins">
-            <span className="card-icon">📝</span>
-            <div className="card-title-ins">SRAA</div>
-          </div>
-          <div className="card-text">
-            Sistema de Registro de Actividades Académicas, plataforma para la gestión, validación y certificación de evidencias docentes.
-          </div>
-          <Link to="/login" className="card-link">Ingresar al Sistema</Link>
-        </article>
+        <section className="cards-container" aria-label="Sistemas institucionales">
+          {sistemas.map((sistema) => (
+            <article className={`card-institucional ${sistema.theme}`} key={sistema.id}>
+              <div className="card-header-ins">
+                <span
+                  className="card-icon"
+                  aria-hidden="true"
+                  dangerouslySetInnerHTML={{ __html: sistema.icon }}
+                />
+                <div>
+                  <div className="card-title-ins">{sistema.title}</div>
+                  <span className="card-tag">{sistema.tag}</span>
+                </div>
+              </div>
 
-        {/* TARJETA 2: SIPRELI */}
-        <article className="card-institucional">
-          <div className="card-header-ins">
-            <span className="card-icon">📁</span>
-            <div className="card-title-ins">SIPRELI</div>
-          </div>
-          <div className="card-text">
-            Sistema de Pre-liberación y control de estadías. Gestión de documentación para procesos de titulación.
-          </div>
-          <a href="https://sipreli.ingenieriasupb.com/" target="_blank" rel="noopener noreferrer" className="card-link">Visitar SIPRELI</a>
-        </article>
+              <div className="card-text">{sistema.description}</div>
 
-        {/* TARJETA 3: SIJUP */}
-        <article className="card-institucional">
-          <div className="card-header-ins">
-            <span className="card-icon">👤</span>
-            <div className="card-title-ins">SIJUP</div>
-          </div>
-          <div className="card-text">
-            Gestión de usuarios y permisos para personal autorizado.
-          </div>
-          <a href="https://sijup.ingenieriasupb.com/login" target="_blank" rel="noopener noreferrer" className="card-link">Visitar SIJUP</a>
-        </article>
-
-        {/* TARJETA 4: BIBLIOTECA */}
-        <article className="card-institucional">
-          <div className="card-header-ins">
-            <span className="card-icon">📚</span>
-            <div className="card-title-ins">Biblioteca Digital</div>
-          </div>
-          <div className="card-text">
-            Acervo digital universitario. Consulta de libros electrónicos, tesis y revistas científicas suscritas.
-          </div>
-          <a href="https://elibro.net/es/lc/upb/login_usuario/?next=/es/lc/upb/inicio/" target="_blank" rel="noopener noreferrer" className="card-link">Visitar Biblioteca</a>
-        </article>
-
-        {/* TARJETA 5: NUEVO SICE */}
-        <article className="card-institucional">
-          <div className="card-header-ins">
-            <span className="card-icon">🏫</span>
-            <div className="card-title-ins">Nuevo Sice</div>
-          </div>
-          <div className="card-text">
-            Portal de Servicios Escolares. Consulta de calificaciones, carga académica e historial del estudiante.
-          </div>
-          <a href="https://upb.dev.ozelot.it/Account/Login?ReturnUrl=%2F" target="_blank" rel="noopener noreferrer" className="card-link">Visitar SICE</a>
-        </article>
-
-        {/* TARJETA 6: SRPI */}
-        <article className="card-institucional">
-          <div className="card-header-ins">
-            <span className="card-icon">🔬</span>
-            <div className="card-title-ins">SRPI</div>
-          </div>
-          <div className="card-text">
-            Sistema de Registro de Proyectos Institucionales. Repositorio de investigaciones y desarrollo tecnológico.
-          </div>
-          <a href="https://srpi.ingenieriasupb.com/" target="_blank" rel="noopener noreferrer" className="card-link">Visitar SRPI</a>
-        </article>
-
-      </section>
+              {sistema.id === 'sraa' ? (
+                <button onClick={alIrALogin} className="card-link" type="button">
+                  {sistema.action}
+                </button>
+              ) : (
+                <a
+                  href={sistema.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="card-link"
+                >
+                  {sistema.action}
+                </a>
+              )}
+            </article>
+          ))}
+        </section>
+      </main>
     </div>
   );
 };

@@ -1,138 +1,144 @@
-/* Configuración Base */
-body {
-  margin: 0;
-  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  background: radial-gradient(circle at top right, #1e3c72, #0f2027, #203a43, #2c5364);
-  background-size: 400% 400%;
-  animation: gradientBG 15s ease infinite;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  color: #ffffff;
-}
+/* ==========================================================================
+   DISEÑO DE LOGIN - FONDO AZUL UPB CENTRADO
+   ========================================================================== */
 
-@keyframes gradientBG {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+.sraa-login-full-page {
+  background-color: #061e43; /* FONDO TOTALMENTE AZUL UPB */
+  position: fixed; /* Fuerza a usar toda la pantalla sin importar configuraciones de Vite */
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  z-index: 9999;
 }
 
 .login-container {
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 2.5rem;
-  border-radius: 16px;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 40px;
   width: 100%;
-  max-width: 400px;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-  box-sizing: border-box;
-
-  /* 👇 AGREGA ESTAS LÍNEAS PARA OBLIGAR EL CENTRADO TRIDIMENSIONAL */
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  max-width: 420px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4); /* Sombra oscura para separar del fondo */
+  text-align: center;
 }
 
-/* Encabezados */
+/* Títulos */
 .login-container h2 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #061e43;
+  letter-spacing: 0.05em;
+  margin-bottom: 5px;
   margin-top: 0;
-  margin-bottom: 0.5rem;
-  font-size: 1.8rem;
-  text-align: center;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  background: linear-gradient(45deg, #00c6ff, #0072ff);
-  -webkit-background-clip: text;
-  background-clip: text; /* Añade esta línea estándar */
-  -webkit-text-fill-color: transparent;
 }
 
 .login-container p {
-  text-align: center;
-  color: #b0b3b8;
-  font-size: 0.9rem;
-  margin-bottom: 2rem;
+  font-size: 0.8rem;
+  color: #64748b;
+  font-weight: 600;
+  margin-top: 0;
+  margin-bottom: 30px;
+  text-transform: uppercase;
 }
 
-/* Grupos de Formulario */
+/* Grupos de inputs */
 .form-group {
-  margin-bottom: 1.5rem;
   display: flex;
   flex-direction: column;
+  gap: 6px;
+  margin-bottom: 20px;
+  text-align: left;
 }
 
 .form-group label {
-  font-size: 0.85rem;
-  color: #e4e6eb;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #94a3b8;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.05em;
 }
 
 .form-group input {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  padding: 0.8rem 1rem;
-  border-radius: 8px;
-  color: #fff;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-  outline: none;
+  padding: 12px 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  background-color: #f8fafc;
+  color: #1e293b;
+  transition: all 0.2s ease;
 }
 
 .form-group input:focus {
-  border-color: #00c6ff;
-  background: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 0 8px rgba(0, 198, 255, 0.2);
+  outline: none;
+  border-color: #00a2ff;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(0, 162, 255, 0.15);
 }
 
-/* Botón de Ingreso */
+/* Botón Principal */
 .btn-ingresar {
-  width: 100%;
-  background: linear-gradient(45deg, #0072ff, #00c6ff);
+  background: #00a2ff; /* Azul claro para contrastar con el fondo oscuro */
+  color: #ffffff;
   border: none;
-  padding: 0.9rem;
-  border-radius: 8px;
-  color: white;
+  padding: 14px;
+  border-radius: 6px;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  margin-top: 0.5rem;
+  transition: background 0.2s;
+  width: 100%;
+  margin-top: 10px;
+  letter-spacing: 0.02em;
 }
 
 .btn-ingresar:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 114, 255, 0.4);
+  background: #008be6;
 }
 
-.btn-ingresar:active {
-  transform: translateY(0);
-}
-
-/* Mensajes de Feedback */
+/* Alertas de Éxito o Error */
 .mensaje {
-  margin-top: 1.2rem;
-  padding: 0.75rem;
+  margin-top: 20px;
+  padding: 12px;
   border-radius: 6px;
-  font-size: 0.9rem;
-  text-align: center;
-  font-weight: 500;
+  font-size: 0.85rem;
+  font-weight: 600;
 }
 
 .mensaje.error {
-  background: rgba(255, 75, 75, 0.15);
-  border: 1px solid rgba(255, 75, 75, 0.3);
-  color: #ff6b6b;
+  background-color: #fef2f2;
+  color: #ef4444;
+  border: 1px solid #f87171;
 }
 
 .mensaje.exito {
-  background: rgba(46, 213, 115, 0.15);
-  border: 1px solid rgba(46, 213, 115, 0.3);
-  color: #2ed573;
+  background-color: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #4ade80;
+}
+
+.btn-enlaces-externo {
+  background: transparent;
+  color: #061e43; /* Azul UPB */
+  border: 1px solid #061e43;
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+  margin-top: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-enlaces-externo:hover {
+  background: #061e43;
+  color: #ffffff;
 }

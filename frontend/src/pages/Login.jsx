@@ -1,11 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { loginUser } from '../services/authService';
-import '../App.css'; // Asegúrate de que apunte a donde guardaste el CSS nuevo
+import '../App.css';
 import '../Login.css';
-import { useNavigate } from 'react-router-dom';
 
-const Login = () => {
-  const navigate = useNavigate(); 
+const Login = ({ alIngresar, alIrAEnlaces }) => {
   const [correo, setCorreo] = useState('');
   const [contrasena, setContrasena] = useState('');
   const [error, setError] = useState('');
@@ -18,63 +16,61 @@ const Login = () => {
 
     try {
       const data = await loginUser({ correo, contrasena });
-      setMensaje(`¡${data.message}! Bienvenido, ${data.usuario.nombre}.`);
-      // Aquí puedes redireccionar al panel principal más adelante
-      // Espera 1.5 segundos para que el usuario alcance a ver el mensaje verde y redirige
+      setMensaje(`Bienvenido, ${data.usuario.nombre}. ${data.message}`);
+
       setTimeout(() => {
-        navigate('/dashboard');
+        alIngresar(data.usuario);
       }, 1500);
     } catch (err) {
-      setError(err.message || 'Error al iniciar sesión');
+      setError(err.message || 'Error al iniciar sesion');
     }
   };
 
   return (
-    <div className="login-container">
-      <h2>SRAC</h2>
-      <p>Sistema de Registro de Actividades de Clase</p>
-      
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>Correo Institucional</label>
-          <input 
-            type="email" 
-            value={correo} 
-            onChange={(e) => setCorreo(e.target.value)} 
-            placeholder="usuario@upb.edu.mx"
-            required 
-          />
-        </div>
+    <div className="sraa-login-full-page">
+      <div className="login-container">
+        <h2>SRAA</h2>
+        <p>Sistema de Registro de Actividades de Clase</p>
 
-        <div className="form-group">
-          <label>Contraseña</label>
-          <input 
-            type="password" 
-            value={contrasena} 
-            onChange={(e) => setContrasena(e.target.value)} 
-            placeholder="••••••••"
-            required 
-          />
-        </div>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label>Correo Institucional</label>
+            <input
+              type="email"
+              value={correo}
+              onChange={(e) => setCorreo(e.target.value)}
+              placeholder="usuario@upb.edu.mx"
+              required
+            />
+          </div>
 
-        <button type="submit" className="btn-ingresar">
-          Ingresar al Sistema
-        </button>
-      </form>
+          <div className="form-group">
+            <label>Contraseña</label>
+            <input
+              type="password"
+              value={contrasena}
+              onChange={(e) => setContrasena(e.target.value)}
+              placeholder="********"
+              required
+            />
+          </div>
 
-      {/* Alerta de Error estilizada */}
-      {error && (
-        <div className="mensaje error">
-          {error}
-        </div>
-      )}
+          <button type="submit" className="btn-ingresar">
+            Ingresar al Sistema
+          </button>
 
-      {/* Alerta de Éxito estilizada */}
-      {mensaje && (
-        <div className="mensaje exito">
-          {mensaje}
-        </div>
-      )}
+          <button
+            type="button"
+            className="btn-enlaces-externo"
+            onClick={alIrAEnlaces}
+          >
+            Portal de Enlaces Institucionales
+          </button>
+        </form>
+
+        {error && <div className="mensaje error">{error}</div>}
+        {mensaje && <div className="mensaje exito">{mensaje}</div>}
+      </div>
     </div>
   );
 };

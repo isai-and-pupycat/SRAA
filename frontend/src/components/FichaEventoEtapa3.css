@@ -1,0 +1,119 @@
+.sraa-stage3-workspace {
+  background: #fdfdfd;
+  padding: 32px;
+  max-width: 950px;
+  margin: 0 auto;
+}
+
+.ficha-final-form-flow {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.final-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.final-input-label {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #0f172a;
+  letter-spacing: 0.02em;
+}
+
+.section-heading-label {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+/* CAJAS DE TEXTO LARGO */
+.final-textarea {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  color: #334155;
+  background-color: #ffffff;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.final-textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.1);
+}
+
+/* ZONAS DE CARGA DE ARCHIVOS DRAG & DROP */
+.file-drop-zone-container {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 24px;
+  text-align: center;
+  cursor: pointer;
+  display: block;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.file-drop-zone-container:hover {
+  background-color: #f8fafc;
+  border-color: #94a3b8;
+}
+
+.hidden-file-input {
+  display: none;
+}
+
+.drop-zone-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.upload-cloud-icon {
+  font-size: 2.2rem;
+  color: #2563eb;
+  margin-bottom: 4px;
+}
+
+.primary-drop-text {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #475569;
+}
+
+.secondary-drop-text {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+/* BOTÓN FINAL MAQUETADO COMO EN image_7ea45d.png */
+.btn-submit-finalize-form {
+  background: #061e43;
+  color: #ffffff;
+  border: none;
+  padding: 16px;
+  border-radius: 4px;
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 16px;
+  width: 100%;
+  text-align: center;
+}
+
+.btn-submit-finalize-form:hover {
+  background: #0a2d66;
+}

@@ -1,0 +1,294 @@
+.sraa-form-workspace {
+  background: #fdfdfd;
+  padding: 32px;
+  max-width: 950px;
+  margin: 0 auto;
+}
+
+.form-title-section h2 {
+  font-size: 1.6rem;
+  color: #061e43;
+  font-weight: 700;
+}
+
+.form-title-section p {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+/* INTERFAZ DEL STEPPER (1) ---------- (2) */
+.form-stepper-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 24px 0 32px 0;
+  gap: 12px;
+}
+
+.step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.step-number {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.step-item.active .step-number {
+  background: #3b82f6;
+  color: white;
+}
+
+.step-item.pending .step-number {
+  background: #ffffff;
+  border: 2px solid #cbd5e1;
+  color: #64748b;
+}
+
+.step-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.step-line {
+  height: 2px;
+  background: #cbd5e1;
+  width: 140px;
+  margin-top: -20px;
+}
+
+/* MAQUETACIÓN INTERNA DEL FORMULARIO */
+.ficha-evento-form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-row-two-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.form-row-logistics-time {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  gap: 24px;
+}
+
+.form-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-field-group label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+/* INPUTS, SELECTS Y TEXTAREAS */
+.ficha-evento-form-grid input[type="text"],
+.ficha-evento-form-grid input[type="date"],
+.ficha-evento-form-grid input[type="time"],
+.ficha-evento-form-grid select,
+.ficha-evento-form-grid textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: #334155;
+  background-color: #ffffff;
+  transition: border-color 0.2s;
+}
+
+.ficha-evento-form-grid input:focus,
+.ficha-evento-form-grid select:focus,
+.ficha-evento-form-grid textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.date-inputs-range {
+  display: flex;
+  gap: 12px;
+}
+
+/* REGLAS PARA FILAS DINÁMICAS (+ / X) */
+.dynamic-input-row {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.current-docente-row {
+  margin-bottom: 8px;
+}
+
+.btn-dyn-add {
+  background: #10b981;
+  color: white;
+  border: none;
+  width: 34px;
+  height: 38px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-dyn-remove {
+  background: #ef4444;
+  color: white;
+  border: none;
+  width: 34px;
+  height: 38px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* CAJA GRIS DE INVITADOS ESPECIALES */
+.conditional-guests-panel {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.radio-question-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 14px;
+}
+
+.radio-question-row label {
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.guest-input-pair-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 12px;
+}
+
+.sub-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sub-field label {
+  font-size: 0.8rem;
+  color: #475569;
+}
+
+/* CONTENEDOR DE REQUERIMIENTOS INFERIORES */
+.lower-requirements-card {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 24px;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.services-checkboxes-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.section-subtitle-label {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.checkbox-item-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: #334155;
+  font-weight: 500;
+}
+
+.checkbox-item-row input[type="checkbox"] {
+  margin-top: 3px;
+}
+
+.checkbox-item-row small {
+  color: #64748b;
+  font-weight: 400;
+}
+
+/* BARRA DE NAVEGACIÓN INFERIOR: CANCELAR / ENVIAR */
+.form-navigation-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.btn-cancelar-ficha {
+  background: #ffffff;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  padding: 14px 28px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.btn-cancelar-ficha:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+/* BOTÓN DE ENVÍO DE NIVEL DE PRODUCCIÓN (image_733f3b.png) */
+.btn-submit-ficha-revision {
+  background: #061e43;
+  color: #ffffff;
+  border: none;
+  padding: 16px;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-submit-ficha-revision:hover {
+  background: #0a2d66;
+}
+
+/* Dentro de la barra de navegación, el botón de enviar ocupa el espacio restante */
+.form-navigation-actions .btn-submit-ficha-revision {
+  flex: 1;
+}

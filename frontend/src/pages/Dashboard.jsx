@@ -1,178 +1,197 @@
-import React, { useState } from 'react';
 import '../Dashboard.css';
 
-const Dashboard = () => {
-  const [docente] = useState({
-    nombre: 'Ing. Isai Rosas Canto',
-    iniciales: 'IC'
-  });
-
-  // Datos de control interno para el flujo de fichas del SRAA
-  const [fichasRecientes] = useState([
-    { id: 'F-025', nombre: 'Taller de Arduino Uno', fecha: '15/06/2026', estado: 'Autorizado' },
-    { id: 'F-026', nombre: 'Laboratorio de Redes Cisco', fecha: '20/06/2026', estado: 'En Revisión' },
-    { id: 'F-027', nombre: 'Seminario Sistemas Distribuidos', fecha: '22/06/2026', estado: 'Pendiente' },
-  ]);
-
+const Dashboard = ({ alClickCrearFicha }) => {
   return (
-    <div className="dashboard-layout">
+    /* 🚀 REJILLA PRINCIPAL DE 3 COLUMNAS MOCKUP FIEL */
+    <div className="dashboard-three-column-grid">
       
-      {/* 1. SIDEBAR MENÚ (Identidad Institucional SRAA) */}
-      <aside className="sidebar">
-        <div className="sidebar-brand">SRAA</div>
-        <ul className="sidebar-menu">
-          <li className="sidebar-item active">
-            <i className="fa-solid fa-house"></i> Inicio
-          </li>
-          <li className="sidebar-item">
-            <i className="fa-solid fa-file-signature"></i> Fichas de Eventos
-          </li>
-          <li className="sidebar-item">
-            <i className="fa-solid fa-award"></i> Mis constancias
-          </li>
-          <li className="sidebar-item">
-            <i className="fa-solid fa-list-ul"></i> Listado de eventos
-          </li>
-        </ul>
-      </aside>
-
-      {/* 2. ÁREA OPERATIVA PRINCIPAL */}
-      <main className="main-content">
-        
-        {/* HEADER SUPERIOR */}
-        <header className="header-top">
-          <div className="header-title">
-            <h1>Portal docente - SRAA</h1>
-            <span>Panel de Control</span>
-          </div>
-          <div className="user-profile">
-            <div className="user-avatar">{docente.iniciales}</div>
-            {docente.nombre}
-            <i className="fa-solid fa-chevron-down" style={{ fontSize: '0.75rem', color: '#a0aec0' }}></i>
-          </div>
-        </header>
-
-        {/* WORKSPACE (Ajustado al 100% de la pantalla) */}
-        <div className="workspace">
+      {/* ================= COLUMNA 1: MI ACTIVIDAD ================= */}
+      <section className="col-left-activity">
+        <div className="activity-panel-card">
+          <span className="panel-section-title">MI ACTIVIDAD</span>
           
-          {/* CONTROL DE TRÁMITES EN TARJETAS RÁPIDAS */}
-          <div className="metrics-row">
-            <div className="card-metric blue">
-              <div>
-                <p className="value">03</p>
-                <p className="label">Fichas Generadas</p>
-              </div>
-              <div className="icon-box"><i className="fa-solid fa-folder-open"></i></div>
-            </div>
-            <div className="card-metric orange">
-              <div>
-                <p className="value">01</p>
-                <p className="label">En Revisión / Cambios</p>
-              </div>
-              <div className="icon-box"><i className="fa-solid fa-triangle-exclamation"></i></div>
-            </div>
-            <div className="card-metric green">
-              <div>
-                <p className="value">01</p>
-                <p className="label">Constancias Emitidas</p>
-              </div>
-              <div className="icon-box"><i className="fa-solid fa-file-circle-check"></i></div>
+          <div className="metric-vertical-card border-blue">
+            <span className="m-num">12</span>
+            <span className="m-label">EVENTOS REGISTRADOS</span>
+          </div>
+          
+          <div className="metric-vertical-card border-green">
+            <span className="m-num">08</span>
+            <span className="m-label">AUTORIZADOS EN CALENDAR</span>
+          </div>
+          
+          <div className="metric-vertical-card border-orange">
+            <span className="m-num">04</span>
+            <span className="m-label">EN REVISIÓN</span>
+          </div>
+        </div>
+      </section>
+
+      {/* ================= COLUMNA 2: CORE CENTRAL ================= */}
+      <section className="col-center-core">
+        
+        {/* FILA SUPERIOR: SINOPSIS DE FICHAS Y CONSTANCIAS */}
+        <div className="mini-stats-row">
+          <div className="mini-stat-box">
+            <span className="stat-icon">📄</span>
+            <div className="stat-info">
+              <strong>08</strong>
+              <span>FICHAS LIBERADAS</span>
             </div>
           </div>
-
-          {/* BARRA DE BÚSQUEDA Y ACCIÓN DE REGISTRO */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px' }}>
-            <div style={{ display: 'flex', gap: '10px', width: '40%' }}>
-              <input 
-                type="text" 
-                placeholder="Buscar por folio o nombre del evento..." 
-                style={{ padding: '10px 15px', borderRadius: '8px', border: '1px solid #e2e8f0', width: '100%', fontSize: '0.9rem', outline: 'none' }}
-              />
+          <div className="mini-stat-box">
+            <span className="stat-icon">⏳</span>
+            <div className="stat-info">
+              <strong>04</strong>
+              <span>SOLICITUDES PENDIENTES</span>
             </div>
-            <button className="btn-ingresar" style={{ width: 'auto', padding: '10px 20px', marginTop: 0 }}>
-              <i className="fa-solid fa-plus" style={{ marginRight: '8px' }}></i> Crear Nueva Ficha Técnica
+          </div>
+          <div className="mini-stat-box">
+            <span className="stat-icon">🏅</span>
+            <div className="stat-info">
+              <strong>15</strong>
+              <span>CONSTANCIAS EMITIDAS</span>
+            </div>
+          </div>
+        </div>
+
+        {/* El Calendario de Rejilla Central */}
+        <div className="calendar-grid-container">
+          <div className="calendar-nav-header">
+            <button className="cal-arrow">&lt;</button>
+            <span className="cal-month">MAYO 2026</span>
+            <button className="cal-arrow">&gt;</button>
+          </div>
+
+          <div className="calendar-weekdays">
+            <span>LUN</span><span>MAR</span><span>MIÉ</span><span>JUE</span><span>VIE</span><span>SÁB</span><span>DOM</span>
+          </div>
+
+          <div className="calendar-cells-grid">
+            {/* Fila 1 */}
+            <div className="c-cell muted"><span className="n">27</span></div>
+            <div className="c-cell muted"><span className="n">28</span></div>
+            <div className="c-cell muted"><span className="n">29</span></div>
+            <div className="c-cell muted"><span className="n">30</span></div>
+            <div className="c-cell"><span className="n">1</span></div>
+            <div className="c-cell"><span className="n">2</span></div>
+            <div className="c-cell"><span className="n">3</span></div>
+
+            {/* Fila 2 */}
+            <div className="c-cell"><span className="n">4</span></div>
+            <div className="c-cell has-tag">
+              <span className="n">5</span>
+              <div className="c-tag tag-green">Taller Arduino</div>
+            </div>
+            <div className="c-cell"><span className="n">6</span></div>
+            <div className="c-cell"><span className="n">7</span></div>
+            <div className="c-cell"><span className="n">8</span></div>
+            <div className="c-cell"><span className="n">9</span></div>
+            <div className="c-cell"><span className="n">10</span></div>
+
+            {/* Fila 3 */}
+            <div className="c-cell"><span className="n">11</span></div>
+            <div className="c-cell"><span className="n">12</span></div>
+            <div className="c-cell"><span className="n">13</span></div>
+            <div className="c-cell"><span className="n">14</span></div>
+            <div className="c-cell has-tag">
+              <span className="n">15</span>
+              <div className="c-tag tag-yellow">Evidencia Clase</div>
+            </div>
+            <div className="c-cell"><span className="n">16</span></div>
+            <div className="c-cell"><span className="n">17</span></div>
+
+            {/* Fila 4 */}
+            <div className="c-cell"><span className="n">18</span></div>
+            <div className="c-cell"><span className="n">19</span></div>
+            <div className="c-cell has-tag">
+              <span className="n">20</span>
+              <div className="c-tag tag-green">Lab. Redes</div>
+            </div>
+            <div className="c-cell"><span className="n">21</span></div>
+            <div className="c-cell"><span className="n">22</span></div>
+            <div className="c-cell"><span className="n">23</span></div>
+            <div className="c-cell"><span className="n">24</span></div>
+          </div>
+
+          <div className="calendar-legend-bottom">
+            <span className="leg"><span className="dot d-green"></span> Autorizado en Google Calendar</span>
+            <span className="leg"><span className="dot d-yellow"></span> Pendiente de Validación</span>
+          </div>
+        </div>
+
+      </section>
+
+      {/* ================= COLUMNA 3: RECURSOS Y ACTIVIDAD ================= */}
+      <section className="col-right-resources">
+        
+        {/* Caja de Formatos y Descargas */}
+        <div className="resources-card">
+          <span className="panel-section-title">FORMATOS Y DESCARGAS</span>
+          
+          <div className="download-item-row">
+            <div className="item-icon-title-pair">
+              <span className="file-icon red-pdf">📄</span>
+              <div className="file-meta">
+                <strong>Lista de Asistencia</strong>
+                <span>Formato PDF oficial para recolección de firmas físicas en el aula.</span>
+              </div>
+            </div>
+            <button className="btn-download-action" onClick={alClickCrearFicha}>
+              ➕ Crear Nueva Ficha de Evento
             </button>
           </div>
 
-          {/* GRID OPERATIVO (Historial + Retroalimentación) */}
-          <div className="dashboard-grid">
-            
-            {/* PANEL IZQUIERDO: SEGUIMIENTO DE REQUISITOS */}
-            <div className="panel-box">
-              <h3>Estatus de Fichas Técnicas</h3>
-              <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px' }}>
-                <thead>
-                  <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                    <th style={{ padding: '12px', textAlign: 'left', color: '#4a5568', fontSize: '0.85rem' }}>Folio</th>
-                    <th style={{ padding: '12px', textAlign: 'left', color: '#4a5568', fontSize: '0.85rem' }}>Nombre del Evento</th>
-                    <th style={{ padding: '12px', textAlign: 'left', color: '#4a5568', fontSize: '0.85rem' }}>Registro</th>
-                    <th style={{ padding: '12px', textAlign: 'left', color: '#4a5568', fontSize: '0.85rem' }}>Estado</th>
-                    <th style={{ padding: '12px', textAlign: 'center', color: '#4a5568', fontSize: '0.85rem' }}>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {fichasRecientes.map((ficha) => (
-                    <tr key={ficha.id} style={{ borderBottom: '1px solid #edf2f7' }}>
-                      <td style={{ padding: '14px 12px', fontWeight: 'bold', fontSize: '0.9rem' }}>{ficha.id}</td>
-                      <td style={{ padding: '14px 12px', fontSize: '0.9rem' }}>{ficha.nombre}</td>
-                      <td style={{ padding: '14px 12px', fontSize: '0.9rem', color: '#718096' }}>{ficha.fecha}</td>
-                      <td style={{ padding: '14px 12px' }}>
-                        <span className={`event-tag ${ficha.estado === 'Autorizado' ? 'green' : ficha.estado === 'En Revisión' ? 'blue' : 'yellow'}`} style={{ padding: '4px 10px', borderRadius: '20px' }}>
-                          {ficha.estado}
-                        </span>
-                      </td>
-                      <td style={{ padding: '14px 12px', textAlign: 'center' }}>
-                        <button style={{ background: 'none', border: 'none', color: '#0072ff', cursor: 'pointer', marginRight: '12px' }} title="Ver Detalles">
-                          <i className="fa-solid fa-eye"></i>
-                        </button>
-                        {ficha.estado === 'Autorizado' && (
-                          <button style={{ background: 'none', border: 'none', color: '#2ed573', cursor: 'pointer' }} title="Descargar Constancia Firmada (PDF)">
-                            <i className="fa-solid fa-file-pdf"></i>
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          <div className="download-item-row">
+            <div className="item-icon-title-pair">
+              <span className="file-icon green-badge">🏅</span>
+              <div className="file-meta">
+                <strong>Mis Constancias</strong>
+                <span>Baja los certificados PDF de tus conferencias magistrales validadas.</span>
+              </div>
             </div>
+            <button className="btn-download-action">⚙️ Obtener Constancias</button>
+          </div>
+        </div>
 
-            {/* PANEL DERECHO: NOTAS DE COORDINACIÓN */}
-            <div className="panel-box">
-              <h3>Avisos del Coordinador</h3>
-              <div className="activity-list">
-                <div className="activity-card orange" style={{ borderRadius: '8px', borderLeftWidth: '4px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-                    <span style={{ fontWeight: 'bold', fontSize: '0.85rem', color: '#ffa502' }}>F-026 (Observaciones)</span>
-                    <span style={{ fontSize: '0.75rem', color: '#a0aec0' }}>Hoy</span>
-                  </div>
-                  <p className="txt" style={{ margin: 0, fontSize: '0.85rem', lineHeight: '1.4' }}>
-                    "Falta la firma física del jefe de grupo en el documento de control. Adjuntar escaneo nuevo para liberación."
-                  </p>
-                </div>
-
-                <div className="activity-card green" style={{ borderRadius: '8px', borderLeftWidth: '4px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-                    <span style={{ fontWeight: 'bold', fontSize: '0.85rem', color: '#2ed573' }}>F-025 (Liberada)</span>
-                    <span style={{ fontSize: '0.75rem', color: '#a0aec0' }}>Ayer</span>
-                  </div>
-                  <p className="txt" style={{ margin: 0, fontSize: '0.85rem', lineHeight: '1.4' }}>
-                    La constancia institucional ha sido firmada digitalmente. Disponible para descarga.
-                  </p>
-                </div>
+        {/* Caja de Actividad Reciente Scrollable */}
+        <div className="resources-card activity-log-card">
+          <span className="panel-section-title icon-title">
+            <span className="bell-log-icon">🔔</span> Actividad Reciente
+          </span>
+          
+          <div className="scrollable-activity-list">
+            <div className="log-item-row">
+              <span className="log-dot dot-blue">✅</span>
+              <div className="log-text-content">
+                <strong>Ficha Técnica Autorizada</strong>
+                <p>El coordinador institucional aprobó los detalles finales de tu "Taller de Arduino Uno".</p>
+                <span className="log-time">Hace 15 minutos</span>
               </div>
             </div>
 
-          </div> {/* Fin de dashboard-grid */}
-        </div> {/* Fin de workspace */}
+            <div className="log-item-row">
+              <span className="log-dot dot-orange">⚠️</span>
+              <div className="log-text-content">
+                <strong>Ficha Técnica Devuelta</strong>
+                <p>Has solicitado correcciones en la ficha "ARTMOSFERA 2026".</p>
+                <span className="log-time">Hace 2 horas</span>
+              </div>
+            </div>
 
-        {/* FOOTER */}
-        <footer className="footer-upb">
-          <strong>UNIVERSIDAD POLITÉCNICA DE BACALAR</strong><br />
-          Avenida 39, REG 12 MZ 325 LT 1 entre calle 56 y 46-A, C.P. 77930, Bacalar, Q.Roo. Tel: 983 128 1591 | Protección de Datos Personales
-        </footer>
+            <div className="log-item-row">
+              <span className="log-dot dot-green">🏅</span>
+              <div className="log-text-content">
+                <strong>Constancias Disponibles</strong>
+                <p>Se liberaron los PDF de participación correspondientes al "Laboratorio de Redes Cisco".</p>
+                <span className="log-time">Ayer</span>
+              </div>
+            </div>
+          </div>
+        </div>
 
-      </main>
+      </section>
+
     </div>
   );
 };
