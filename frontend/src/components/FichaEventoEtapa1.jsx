@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import './FichaEvento.css';
 
-const FichaEventoEtapa1 = ({ alAvanzar, alCancelar }) => {
+const FichaEventoEtapa1 = ({ nombreActividad, setNombreActividad, alAvanzar, alCancelar }) => {
   // Estados para inputs convencionales
   const [programa, setPrograma] = useState("Ingenieria en Tecnologias de la Informacion e Innovacion Digital");
   const [lugar, setLugar] = useState("Laboratorio de Computo / Auditorio UPB");
-  const [nombreActividad, setNombreActividad] = useState("Participacion Hackaton Come Datos 2025");
   const [fechaInicio, setFechaInicio] = useState("2026-06-16");
   const [fechaFin, setFechaFin] = useState("2026-06-17");
   const [horaInicio, setHoraInicio] = useState("09:00");
@@ -30,6 +29,9 @@ const FichaEventoEtapa1 = ({ alAvanzar, alCancelar }) => {
     redes: true
   });
 
+  // Servicios adicionales personalizados (filas dinámicas)
+  const [serviciosExtra, setServiciosExtra] = useState([""]);
+
   // Funciones manejadoras para campos dinámicos
   const handleAddCarrera = () => setCarreras([...carreras, ""]);
   const handleRemoveCarrera = (index) => setCarreras(carreras.filter((_, i) => i !== index));
@@ -40,12 +42,20 @@ const FichaEventoEtapa1 = ({ alAvanzar, alCancelar }) => {
   const handleAddInvitado = () => setInvitados([...invitados, { nombre: "", cargo: "" }]);
   const handleRemoveInvitado = (index) => setInvitados(invitados.filter((_, i) => i !== index));
 
+  const handleAddServicioExtra = () => setServiciosExtra([...serviciosExtra, ""]);
+  const handleRemoveServicioExtra = (index) => setServiciosExtra(serviciosExtra.filter((_, i) => i !== index));
+  const handleChangeServicioExtra = (index, value) => {
+    const nuevos = [...serviciosExtra];
+    nuevos[index] = value;
+    setServiciosExtra(nuevos);
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("Enviando datos de la Etapa 1 para revisión...", {
       programa, lugar, nombreActividad, carreras, fechaInicio, fechaFin,
       horaInicio, horaFin, tipoEvento, objetivo, docentes, requiereInvitados,
-      invitados, requerimientos, departamento, servicios
+      invitados, requerimientos, departamento, servicios, serviciosExtra
     });
     alAvanzar(); // Pasa a la Etapa 2
   };
@@ -69,6 +79,11 @@ const FichaEventoEtapa1 = ({ alAvanzar, alCancelar }) => {
         <div className="step-item pending">
           <span className="step-number">2</span>
           <span className="step-label">Etapa 2: Estructura del Orden del Día</span>
+        </div>
+        <div className="step-line"></div>
+        <div className="step-item pending">
+          <span className="step-number">3</span>
+          <span className="step-label">Etapa 3: Cierre y Evidencias</span>
         </div>
       </div>
 
@@ -254,6 +269,26 @@ const FichaEventoEtapa1 = ({ alAvanzar, alCancelar }) => {
               <input type="checkbox" checked={servicios.redes} onChange={(e) => setServicios({...servicios, redes: e.target.checked})} />
               <span>Publicación en Redes</span>
             </label>
+
+            {/* Servicios adicionales (filas dinámicas) */}
+            <div className="extra-services-list">
+              <label className="section-subtitle-label">Otros servicios requeridos</label>
+              {serviciosExtra.map((servicio, index) => (
+                <div key={index} className="dynamic-input-row">
+                  <input
+                    type="text"
+                    placeholder="Especifica otro servicio requerido..."
+                    value={servicio}
+                    onChange={(e) => handleChangeServicioExtra(index, e.target.value)}
+                  />
+                  {index === 0 ? (
+                    <button type="button" className="btn-dyn-add" onClick={handleAddServicioExtra}>＋</button>
+                  ) : (
+                    <button type="button" className="btn-dyn-remove" onClick={() => handleRemoveServicioExtra(index)}>✕</button>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
 
         </div>

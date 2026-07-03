@@ -1,0 +1,374 @@
+/* ============================================================
+   LISTADO DE FICHAS / EVENTOS
+   Paleta institucional SRAA (azul #061e43, acento #3b82f6)
+   ============================================================ */
+
+.listado-fichas-workspace {
+  padding: 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+/* ---------- ENCABEZADO ---------- */
+.listado-title-section h2 {
+  font-size: 2rem;
+  color: #061e43;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.listado-title-section p {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+/* ---------- BARRA DE FILTROS ---------- */
+.listado-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 24px 0;
+  padding: 16px 20px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+  flex-wrap: wrap;
+}
+
+.toolbar-filtro {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.toolbar-filtro label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #334155;
+  white-space: nowrap;
+}
+
+.toolbar-filtro select {
+  padding: 8px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: #1e293b;
+  background: #f8fafc;
+  cursor: pointer;
+  min-width: 190px;
+}
+
+.toolbar-filtro select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.toolbar-busqueda {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 8px 12px;
+  flex: 1;
+  min-width: 220px;
+  max-width: 340px;
+}
+
+.toolbar-busqueda .icono-busqueda {
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.toolbar-busqueda input {
+  border: none;
+  background: transparent;
+  outline: none;
+  width: 100%;
+  font-size: 0.85rem;
+  color: #1e293b;
+}
+
+/* ---------- TABLA ---------- */
+.listado-tabla-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+  overflow-x: auto;
+}
+
+.tabla-fichas {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 900px;
+}
+
+.tabla-fichas thead th {
+  text-align: left;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #64748b;
+  padding: 16px 18px;
+  border-bottom: 2px solid #e2e8f0;
+  background: #f8fafc;
+  white-space: nowrap;
+}
+
+.tabla-fichas tbody td {
+  padding: 18px;
+  border-bottom: 1px solid #eef2f7;
+  vertical-align: top;
+  font-size: 0.85rem;
+  color: #334155;
+}
+
+.tabla-fichas tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.tabla-fichas tbody tr:hover {
+  background: #f9fbff;
+}
+
+.col-num {
+  width: 48px;
+  text-align: center !important;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.col-actividad {
+  min-width: 260px;
+}
+
+.col-etapa2,
+.col-etapa3 {
+  min-width: 220px;
+}
+
+.col-accion {
+  width: 150px;
+}
+
+/* ---------- CELDA: ACTIVIDAD ---------- */
+.actividad-nombre {
+  display: block;
+  color: #061e43;
+  font-weight: 700;
+  font-size: 0.92rem;
+  line-height: 1.3;
+  margin-bottom: 4px;
+}
+
+.actividad-meta {
+  display: block;
+  font-size: 0.78rem;
+  color: #64748b;
+}
+
+/* ---------- CELDA: FECHA ---------- */
+.celda-fecha {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.celda-fecha .fecha-hora {
+  color: #64748b;
+  font-size: 0.8rem;
+}
+
+/* ============================================================
+   INDICADORES DE ESTADO (BADGES)
+   ============================================================ */
+.badge-estado {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Verde: Validado */
+.badge-validado {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+/* Verde (variante check): Finalizado */
+.badge-finalizado {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+/* Naranja: En Validación */
+.badge-en-validacion {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+/* Rojo: Incompleto */
+.badge-incompleto {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* Gris: Pendiente */
+.badge-pendiente {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+/* ---------- ETAPA (2 y 3): INCOMPLETO ---------- */
+.etapa-incompleto {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lista-faltantes {
+  list-style: none;
+  margin: 2px 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.lista-faltantes li {
+  font-size: 0.78rem;
+  color: #64748b;
+}
+
+.faltante-x {
+  color: #ef4444;
+  font-weight: 700;
+  margin-right: 2px;
+}
+
+.barra-progreso {
+  width: 100%;
+  max-width: 180px;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.barra-progreso-relleno {
+  height: 100%;
+  background: linear-gradient(90deg, #f97316, #fb923c);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.progreso-texto {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+/* ============================================================
+   BOTONES DE ACCIÓN
+   ============================================================ */
+.grupo-acciones {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.btn-accion {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+
+/* Ver: contorno azul institucional */
+.btn-ver {
+  background: #ffffff;
+  color: #061e43;
+  border-color: #cbd5e1;
+}
+
+.btn-ver:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+/* Editar: azul institucional relleno */
+.btn-editar {
+  background: #061e43;
+  color: #ffffff;
+}
+
+.btn-editar:hover {
+  background: #0a2c5f;
+}
+
+/* Descargar: verde de acción */
+.btn-descargar {
+  background: #16a34a;
+  color: #ffffff;
+}
+
+.btn-descargar:hover {
+  background: #15803d;
+}
+
+/* Descargar deshabilitado (en validación) */
+.btn-deshabilitado {
+  background: #e2e8f0;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.btn-deshabilitado:hover {
+  background: #e2e8f0;
+}
+
+/* ---------- FILA VACÍA ---------- */
+.fila-vacia {
+  text-align: center;
+  color: #94a3b8;
+  padding: 40px 18px !important;
+  font-style: italic;
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 640px) {
+  .listado-fichas-workspace {
+    padding: 20px 12px;
+  }
+
+  .listado-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .toolbar-busqueda {
+    max-width: none;
+  }
+}

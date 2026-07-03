@@ -20,6 +20,36 @@
   margin-bottom: 12px;
 }
 
+/* CAMPO: NOMBRE DE LA ACTIVIDAD DEL ORDEN DEL DÍA */
+.agenda-nombre-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.agenda-nombre-field label {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #061e43;
+}
+
+.agenda-nombre-field input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #94a3b8;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: #1e293b;
+  background: #ffffff;
+}
+
+.agenda-nombre-field input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
 /* FILA DEL FILTRO DE OPCIÓN (SÍ/NO) */
 .agenda-radio-row {
   display: flex;
@@ -61,15 +91,27 @@
   width: 100%;
 }
 
+/* Caja contenedora del input de tiempo con su etiqueta de columna */
+.input-time-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 0 0 140px;
+}
+
 /* Inputs de Tiempo */
 .input-time-field {
-  width: 90px;
-  padding: 10px;
+  width: 140px;
+  padding: 10px 12px;
   border: 1px solid #94a3b8;
   border-radius: 6px;
   font-size: 0.88rem;
-  text-align: center;
+  color: #1e293b;
   background: #ffffff;
+}
+
+.input-time-box .input-time-field {
+  width: 100%;
 }
 
 /* Cajas contenedoras de inputs de texto con etiquetas flotantes */

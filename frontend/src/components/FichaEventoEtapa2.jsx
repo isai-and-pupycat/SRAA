@@ -1,17 +1,17 @@
 import { useState } from 'react';
 import './FichaEventoEtapa2.css';
 
-const FichaEventoEtapa2 = ({ alAvanzar, alRetroceder }) => {
+const FichaEventoEtapa2 = ({ nombreActividad, setNombreActividad, alAvanzar, alRetroceder }) => {
   // Lógica condicional: si requiere o no el orden del día
   const [requiereOrden, setRequiereOrden] = useState('si');
-  
+
   // Arreglo dinámico inicializado con los datos de image_742c15.png
   const [itinerario, setItinerario] = useState([
     {
       horaInicio: '09:00',
       horaFin: '09:10',
       actividad: 'Registro de invitados',
-      audiencia: 'Estudiantes de tecnologías de 6to cuatrimestre'
+      responsables: 'Estudiantes de tecnologías de 6to cuatrimestre'
     }
   ]);
 
@@ -19,7 +19,7 @@ const FichaEventoEtapa2 = ({ alAvanzar, alRetroceder }) => {
   const handleAddFila = () => {
     setItinerario([
       ...itinerario,
-      { horaInicio: '', horaFin: '', actividad: '', audiencia: '' }
+      { horaInicio: '', horaFin: '', actividad: '', responsables: '' }
     ]);
   };
 
@@ -39,7 +39,7 @@ const FichaEventoEtapa2 = ({ alAvanzar, alRetroceder }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Datos de la Etapa 2 listos para enviarse:", { requiereOrden, itinerario });
+    console.log("Datos de la Etapa 2 listos para enviarse:", { requiereOrden, nombreActividad, itinerario });
     alAvanzar(); // Pasa a la Etapa 3
   };
 
@@ -57,12 +57,28 @@ const FichaEventoEtapa2 = ({ alAvanzar, alRetroceder }) => {
           <span className="step-number">2</span>
           <span className="step-label">Etapa 2: Estructura del Orden del Día</span>
         </div>
+        <div className="step-line"></div>
+        <div className="step-item pending">
+          <span className="step-number">3</span>
+          <span className="step-label">Etapa 3: Cierre y Evidencias</span>
+        </div>
       </div>
 
       {/* CONTENEDOR PRINCIPAL BASADO EN image_742c15.png */}
       <form onSubmit={handleSubmit} className="agenda-structure-card">
         <h3>Estructura del Orden del Día</h3>
-        
+
+        {/* NOMBRE DE LA ACTIVIDAD DEL ORDEN DEL DÍA */}
+        <div className="agenda-nombre-field">
+          <label>Nombre de la Actividad</label>
+          <input
+            type="text"
+            placeholder="Ej. Hackatón Come Datos 2025"
+            value={nombreActividad}
+            onChange={(e) => setNombreActividad(e.target.value)}
+          />
+        </div>
+
         {/* INTERRUPTOR RADIO BUTTONS */}
         <div className="agenda-radio-row">
           <span>¿Requiere orden del día?</span>
@@ -95,42 +111,48 @@ const FichaEventoEtapa2 = ({ alAvanzar, alRetroceder }) => {
               <div key={index} className="agenda-dynamic-row">
                 
                 {/* Hora Inicio */}
-                <input 
-                  type="time" 
-                  className="input-time-field"
-                  value={item.horaInicio} 
-                  onChange={(e) => handleInputChange(index, 'horaInicio', e.target.value)} 
-                />
-
-                {/* Hora Fin */}
-                <input 
-                  type="time" 
-                  className="input-time-field"
-                  value={item.horaFin} 
-                  onChange={(e) => handleInputChange(index, 'horaFin', e.target.value)} 
-                />
-
-                {/* Campo Nombre de Actividad */}
-                <div className="input-with-hint-box">
-                  {index === 0 && <span className="input-hint-label">actividad</span>}
-                  <input 
-                    type="text" 
-                    className="input-text-activity"
-                    placeholder="Escribe la actividad..."
-                    value={item.actividad} 
-                    onChange={(e) => handleInputChange(index, 'actividad', e.target.value)} 
+                <div className="input-time-box">
+                  {index === 0 && <span className="input-hint-label">Inicio</span>}
+                  <input
+                    type="time"
+                    className="input-time-field"
+                    value={item.horaInicio}
+                    onChange={(e) => handleInputChange(index, 'horaInicio', e.target.value)}
                   />
                 </div>
 
-                {/* Campo Audiencia / Detalles */}
+                {/* Hora Fin */}
+                <div className="input-time-box">
+                  {index === 0 && <span className="input-hint-label">Fin</span>}
+                  <input
+                    type="time"
+                    className="input-time-field"
+                    value={item.horaFin}
+                    onChange={(e) => handleInputChange(index, 'horaFin', e.target.value)}
+                  />
+                </div>
+
+                {/* Campo Nombre de Actividad */}
+                <div className="input-with-hint-box">
+                  {index === 0 && <span className="input-hint-label">Actividad</span>}
+                  <input
+                    type="text"
+                    className="input-text-activity"
+                    placeholder="Escribe la actividad..."
+                    value={item.actividad}
+                    onChange={(e) => handleInputChange(index, 'actividad', e.target.value)}
+                  />
+                </div>
+
+                {/* Campo Responsables */}
                 <div className="input-with-hint-box target-group-box">
-                  {index === 0 && <span className="input-hint-label">&nbsp;</span>}
-                  <input 
-                    type="text" 
+                  {index === 0 && <span className="input-hint-label">Responsables</span>}
+                  <input
+                    type="text"
                     className="input-text-audience"
-                    placeholder="Grupo, ponentes o alumnos invitados..."
-                    value={item.audiencia} 
-                    onChange={(e) => handleInputChange(index, 'audiencia', e.target.value)} 
+                    placeholder="Responsable(s) de la actividad..."
+                    value={item.responsables}
+                    onChange={(e) => handleInputChange(index, 'responsables', e.target.value)}
                   />
                 </div>
 

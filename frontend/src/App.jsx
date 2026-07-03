@@ -5,6 +5,8 @@ import FichaEventoEtapa1 from './components/FichaEventoEtapa1';
 import FichaEventoEtapa2 from './components/FichaEventoEtapa2';
 import FichaEventoEtapa3 from './components/FichaEventoEtapa3';
 import Accesos from './pages/Accesos';
+import ListadoFichas from './components/ListadoFichas';
+import Constancias from './components/Constancias';
 
 import './App.css';
 import './Dashboard.css';
@@ -12,6 +14,8 @@ import './Dashboard.css';
 function App() {
   const [vistaActual, setVistaActual] = useState('enlaces');
   const [usuarioActual, setUsuarioActual] = useState(null);
+  // Nombre de la actividad, compartido entre las etapas de la ficha.
+  const [nombreActividad, setNombreActividad] = useState('Participacion Hackaton Come Datos 2025');
 
   const cambiarVista = (nuevaVista) => {
     setVistaActual(nuevaVista);
@@ -62,16 +66,16 @@ function App() {
             Fichas de Eventos
           </a>
           <a
-            className="nav-item"
+            className={`nav-item ${vistaActual === 'constancias' ? 'active' : ''}`}
             href="#constancias"
-            onClick={(e) => { e.preventDefault(); }}
+            onClick={(e) => { e.preventDefault(); cambiarVista('constancias'); }}
           >
             Mis constancias
           </a>
           <a
-            className="nav-item"
+            className={`nav-item ${vistaActual === 'listado' ? 'active' : ''}`}
             href="#listado-eventos"
-            onClick={(e) => { e.preventDefault(); }}
+            onClick={(e) => { e.preventDefault(); cambiarVista('listado'); }}
           >
             Listado de eventos
           </a>
@@ -125,12 +129,16 @@ function App() {
           )}
           {vistaActual === 'etapa1' && (
             <FichaEventoEtapa1
+              nombreActividad={nombreActividad}
+              setNombreActividad={setNombreActividad}
               alAvanzar={() => cambiarVista('etapa2')}
               alCancelar={() => cambiarVista('dashboard')}
             />
           )}
           {vistaActual === 'etapa2' && (
             <FichaEventoEtapa2
+              nombreActividad={nombreActividad}
+              setNombreActividad={setNombreActividad}
               alAvanzar={() => cambiarVista('etapa3')}
               alRetroceder={() => cambiarVista('etapa1')}
             />
@@ -139,6 +147,23 @@ function App() {
             <FichaEventoEtapa3
               alFinalizar={() => cambiarVista('dashboard')}
               alRetroceder={() => cambiarVista('etapa2')}
+            />
+          )}
+          {vistaActual === 'listado' && (
+            <ListadoFichas
+              alSeleccionarFicha={(id, accion) => {
+                console.log('Ficha seleccionada:', id, '| Acción:', accion);
+                // Al "Editar" (o "Ver") abrimos el formulario de fichas.
+                if (accion === 'editar') cambiarVista('etapa1');
+              }}
+            />
+          )}
+          {vistaActual === 'constancias' && (
+            <Constancias
+              alDescargar={(id) => {
+                console.log('Descargar constancia:', id);
+                // Aquí conectarás la descarga real del PDF cuando exista el backend.
+              }}
             />
           )}
         </div>
