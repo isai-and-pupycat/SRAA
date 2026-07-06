@@ -1,0 +1,504 @@
+/* ============================================================
+   APROBACIÓN DE EVENTOS — Vista del Coordinador
+   Comparte el lenguaje visual de la tabla de ListadoFichas.
+   ============================================================ */
+
+.ap-workspace {
+  padding: 32px;
+  max-width: 1280px;
+  margin: 0 auto;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+/* ---------- ENCABEZADO ---------- */
+.ap-title-section h1 {
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: #1e293b;
+  letter-spacing: -0.01em;
+}
+
+/* ---------- BARRA DE FILTROS ---------- */
+.ap-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 24px 0 16px;
+  padding: 14px 20px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+  flex-wrap: wrap;
+}
+
+.ap-filtro {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ap-filtro label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #334155;
+  white-space: nowrap;
+}
+
+.ap-filtro select {
+  padding: 8px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: #1e293b;
+  background: #f8fafc;
+  cursor: pointer;
+  min-width: 210px;
+}
+
+.ap-filtro select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.ap-busqueda {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 8px 12px;
+  flex: 1;
+  min-width: 240px;
+  max-width: 360px;
+}
+
+.ap-busqueda-icono {
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.ap-busqueda input {
+  border: none;
+  background: transparent;
+  outline: none;
+  width: 100%;
+  font-size: 0.85rem;
+  color: #1e293b;
+}
+
+/* ---------- PESTAÑAS DE ESTATUS ---------- */
+.ap-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 18px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.ap-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  padding: 10px 18px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #64748b;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.ap-tab:hover {
+  color: #061e43;
+}
+
+.ap-tab.active {
+  color: #061e43;
+  border-bottom-color: #061e43;
+}
+
+.ap-tab-count {
+  background: #e2e8f0;
+  color: #475569;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 1px 8px;
+  border-radius: 999px;
+}
+
+.ap-tab.active .ap-tab-count {
+  background: #061e43;
+  color: #ffffff;
+}
+
+/* ---------- TABLA ---------- */
+.ap-tabla-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+  overflow-x: auto;
+}
+
+.ap-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 980px;
+  /* Anchos fijos: la tabla no se deforma según el contenido */
+  table-layout: fixed;
+}
+
+/* Anchos proporcionales por columna
+   N° 4% · Evento 30% · Docente 17% · Etapa1 12% · Etapa2 12% · Fecha 12% · Acción 13% */
+.ap-tabla th:nth-child(1) { width: 4%; }
+.ap-tabla th:nth-child(2) { width: 30%; }
+.ap-tabla th:nth-child(3) { width: 17%; }
+.ap-tabla th:nth-child(4) { width: 12%; }
+.ap-tabla th:nth-child(5) { width: 12%; }
+.ap-tabla th:nth-child(6) { width: 12%; }
+.ap-tabla th:nth-child(7) { width: 13%; }
+
+.ap-tabla thead th {
+  text-align: left;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #64748b;
+  padding: 16px 20px;
+  border-bottom: 2px solid #e2e8f0;
+  background: #f8fafc;
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.ap-tabla tbody td {
+  /* Espaciado interno uniforme: aire para toda la información */
+  padding: 16px 20px;
+  border-bottom: 1px solid #eef2f7;
+  /* Alineación vertical: todo el contenido de la fila queda centrado */
+  vertical-align: middle;
+  font-size: 0.85rem;
+  color: #334155;
+}
+
+.ap-tabla tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.ap-tabla tbody tr:hover {
+  background: #f9fbff;
+}
+
+.ap-col-num {
+  text-align: center !important;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+/* ---------- CELDA: EVENTO (cuadro de info en columna) ---------- */
+.ap-evento-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.ap-evento-nombre {
+  color: #061e43;
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1.35;
+}
+
+.ap-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 4px;
+  white-space: normal;
+  text-align: left;
+}
+
+/* Carrera: dato clave principal (resalta en azul) */
+.ap-tag-carrera {
+  background: #eef2ff;
+  color: #3730a3;
+}
+
+/* Extensión / área: dato clave secundario */
+.ap-tag-ext {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+/* ---------- CELDA: DOCENTE (avatar + jerarquía) ---------- */
+.ap-docente {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ap-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+.ap-avatar-profesor {
+  background: #d97706;
+}
+
+.ap-avatar-coordinador {
+  background: #1d4ed8;
+}
+
+.ap-docente-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: flex-start;
+}
+
+.ap-docente-info strong {
+  font-size: 0.88rem;
+  color: #1e293b;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.ap-rol-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.ap-rol-profesor {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.ap-rol-coordinador {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+/* ---------- CHIPS DE ESTADO REUTILIZABLES ---------- */
+.ap-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.ap-chip-validado {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.ap-chip-pendiente {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+/* ---------- CELDA: FECHA / HORA ---------- */
+.ap-fecha {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.ap-fecha-dia {
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.ap-hora {
+  color: #64748b;
+  font-size: 0.76rem;
+}
+
+/* ============================================================
+   ACCIÓN — Botones compactos de icono + dropdown
+   ============================================================ */
+.ap-acciones {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  flex-wrap: nowrap;
+}
+
+/* La celda de Acción usa menos padding lateral para dar aire a los botones */
+td.ap-col-accion {
+  padding-left: 10px;
+  padding-right: 16px;
+}
+
+.ap-icon-btn {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-size: 0.95rem;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: filter 0.15s ease, transform 0.1s ease, background 0.15s ease;
+}
+
+.ap-icon-btn:hover {
+  filter: brightness(1.05);
+}
+
+.ap-icon-btn:active {
+  transform: scale(0.94);
+}
+
+/* Validar: verde */
+.ap-icon-validar {
+  background: #dcfce7;
+  color: #15803d;
+  border-color: #bbf7d0;
+}
+
+.ap-icon-validar:hover {
+  background: #16a34a;
+  color: #ffffff;
+}
+
+/* Rechazar: rojo */
+.ap-icon-rechazar {
+  background: #fee2e2;
+  color: #b91c1c;
+  border-color: #fecaca;
+}
+
+.ap-icon-rechazar:hover {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+/* Más acciones (kebab) */
+.ap-icon-mas {
+  background: #f1f5f9;
+  color: #475569;
+  border-color: #e2e8f0;
+  font-size: 1.2rem;
+}
+
+.ap-icon-mas:hover,
+.ap-icon-mas.active {
+  background: #061e43;
+  color: #ffffff;
+}
+
+/* ---------- DROPDOWN ---------- */
+.ap-menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+}
+
+.ap-menu {
+  position: fixed;
+  z-index: 41;
+  width: 220px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ap-menu button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  background: transparent;
+  border: none;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.ap-menu button:hover {
+  background: #f1f5f9;
+  color: #061e43;
+}
+
+.ap-menu-sep {
+  height: 1px;
+  background: #e2e8f0;
+  margin: 4px 0;
+}
+
+/* ---------- FILA VACÍA ---------- */
+.ap-fila-vacia {
+  text-align: center;
+  color: #94a3b8;
+  padding: 40px 18px !important;
+  font-style: italic;
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 640px) {
+  .ap-workspace {
+    padding: 20px 12px;
+  }
+
+  .ap-title-section h1 {
+    font-size: 1.8rem;
+  }
+
+  .ap-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ap-busqueda {
+    max-width: none;
+  }
+
+  .ap-tabs {
+    overflow-x: auto;
+  }
+}

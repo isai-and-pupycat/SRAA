@@ -1,0 +1,166 @@
+/* ============================================================
+   APROBACIÓN DE PROFESORES
+   Tabla reutiliza .ap-* · Modal reutiliza .adm-*
+   ============================================================ */
+
+/* La tabla usa ancho automático (no hereda los % de Aprobación de Eventos) */
+.apr-tabla {
+  table-layout: auto;
+  min-width: 860px;
+}
+
+.apr-tabla th {
+  width: auto !important;
+}
+
+/* ---------- CELDA: DOCENTE (avatar + nombre + correo) ---------- */
+.apr-docente {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.apr-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #061e43;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.apr-docente-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.apr-docente-info strong {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #061e43;
+}
+
+.apr-correo {
+  font-size: 0.76rem;
+  color: #64748b;
+}
+
+.apr-programa {
+  font-weight: 600;
+  color: #334155;
+}
+
+/* ---------- BADGES DE ESTATUS ---------- */
+.apr-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.apr-badge-pendiente {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+.apr-badge-activo {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.apr-badge-inactivo {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+/* ---------- ACCIONES ---------- */
+.apr-col-accion {
+  width: 220px;
+}
+
+.apr-acciones {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.apr-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #ffffff;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: filter 0.15s ease, transform 0.1s ease;
+}
+
+.apr-btn:hover {
+  filter: brightness(1.08);
+}
+
+.apr-btn:active {
+  transform: scale(0.96);
+}
+
+.apr-btn-aprobar {
+  background: #16a34a;
+}
+
+.apr-btn-editar {
+  background: #f59e0b;
+}
+
+.apr-btn-baja {
+  background: #dc2626;
+}
+
+/* Botón "Registrar Profesor" (toolbar, esquina superior derecha) */
+.apr-btn-registrar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #061e43;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 11px 18px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease;
+}
+
+.apr-btn-registrar:hover {
+  background: #0a2c5f;
+}
+
+/* Nota informativa dentro del modal */
+.apr-nota-modal {
+  font-size: 0.78rem;
+  color: #64748b;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 8px;
+  padding: 10px 12px;
+  line-height: 1.4;
+}
+
+.apr-nota-modal strong {
+  color: #c2410c;
+}

@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import Login from './pages/Login';
+import Registro from './pages/Registro';
 import Dashboard from './pages/Dashboard';
 import FichaEventoEtapa1 from './components/FichaEventoEtapa1';
 import FichaEventoEtapa2 from './components/FichaEventoEtapa2';
 import FichaEventoEtapa3 from './components/FichaEventoEtapa3';
 import Accesos from './pages/Accesos';
+import CentroControl from './pages/CentroControl';
 import ListadoFichas from './components/ListadoFichas';
 import Constancias from './components/Constancias';
 
@@ -32,11 +34,41 @@ function App() {
         <Login
           alIngresar={(usuario) => {
             setUsuarioActual(usuario);
-            cambiarVista('dashboard');
+            // Enrutamos según el rol del usuario que inicia sesión
+            const rol = (usuario?.rol || '').toLowerCase();
+            if (['coordinador', 'admin', 'administrador'].includes(rol)) {
+              cambiarVista('centro-control');
+            } else {
+              cambiarVista('dashboard');
+            }
           }}
           alIrAEnlaces={() => cambiarVista('enlaces')}
+          alIrARegistro={() => cambiarVista('registro')}
         />
       </div>
+    );
+  }
+
+  if (vistaActual === 'registro') {
+    return (
+      <div className="sraa-login-wrapper-debug">
+        <Registro
+          alRegistrar={() => cambiarVista('login')}
+          alIrALogin={() => cambiarVista('login')}
+        />
+      </div>
+    );
+  }
+
+  if (vistaActual === 'centro-control') {
+    return (
+      <CentroControl
+        usuario={usuarioActual || undefined}
+        alCerrarSesion={() => {
+          setUsuarioActual(null);
+          cambiarVista('login');
+        }}
+      />
     );
   }
 

@@ -1,0 +1,57 @@
+/* ==========================================================================
+   REGISTRO DE USUARIO
+   Reutiliza las clases de Login.css (.login-container, .form-group, .mensaje).
+   Aquí solo van los estilos propios: logo y botón azul oscuro de la captura.
+   ========================================================================== */
+
+/* Encabezado con logo institucional */
+.registro-header {
+  margin-bottom: 25px;
+}
+
+.registro-logo-upb {
+  width: 180px;
+  height: auto;
+  display: block;
+  margin: 10px auto 8px;
+}
+
+/* Botón principal "Inicia sesion": azul UPB oscuro, centrado, como la captura */
+.btn-registro-submit {
+  background: #061e43;
+  color: #ffffff;
+  border: none;
+  padding: 14px 40px;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease;
+  display: block;
+  margin: 25px auto 0;
+  min-width: 230px;
+}
+
+.btn-registro-submit:hover {
+  background: #0a2c5f;
+}
+
+.btn-registro-submit:active {
+  transform: scale(0.98);
+}
+
+/* Enlace inferior para volver al inicio de sesión */
+.registro-link-login {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 18px;
+  text-decoration: underline;
+}
+
+.registro-link-login:hover {
+  color: #061e43;
+}

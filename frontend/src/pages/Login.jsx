@@ -3,7 +3,7 @@ import { loginUser } from '../services/authService';
 import '../App.css';
 import '../Login.css';
 
-const Login = ({ alIngresar, alIrAEnlaces }) => {
+const Login = ({ alIngresar, alIrAEnlaces, alIrARegistro }) => {
   const [correo, setCorreo] = useState('');
   const [contrasena, setContrasena] = useState('');
   const [error, setError] = useState('');
@@ -65,6 +65,14 @@ const Login = ({ alIngresar, alIrAEnlaces }) => {
             onClick={alIrAEnlaces}
           >
             Portal de Enlaces Institucionales
+          </button>
+
+          <button
+            type="button"
+            className="registro-link-login"
+            onClick={alIrARegistro}
+          >
+            ¿No tienes cuenta? Crear cuenta
           </button>
         </form>
 
