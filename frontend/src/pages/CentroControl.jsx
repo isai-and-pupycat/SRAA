@@ -4,32 +4,43 @@ import CrearConstancia from './CrearConstancia';
 import AprobacionProfesores from './AprobacionProfesores';
 import CrudAdmin from './CrudAdmin';
 import { MODULOS_ADMIN, CONFIG_CONSTANCIAS } from './adminModulos';
+import { SERVICIO_CONSTANCIAS } from '../services/constanciasService';
+import { generarConstanciaPDF } from '../utils/generarConstanciaPDF';
+import { generarFichaPDF } from '../utils/generarFichaPDF';
+import { generarInformePDF } from '../utils/generarInformePDF';
+import {
+  obtenerUsuarios,
+  crearUsuario,
+  actualizarUsuario,
+  eliminarUsuario,
+} from '../services/usuariosService';
 import FichaEventoEtapa1 from '../components/FichaEventoEtapa1';
 import FichaEventoEtapa2 from '../components/FichaEventoEtapa2';
 import FichaEventoEtapa3 from '../components/FichaEventoEtapa3';
+import FichaTecnicaVista from '../components/FichaTecnicaVista';
+import ConfigFirmas from './ConfigFirmas';
 import './CentroControl.css';
 
 /* ============================================================
    DATOS POR DEFECTO (replican la imagen del Centro de Control)
    Todo es parametrizable por props para que el panel sea modular.
    ============================================================ */
-const METRICAS_DEFAULT = {
-  profesores: 5,
-  fichas: 12,
-  constancias: 89,
+// Servicio real de Usuarios para el módulo de Administración (referencia estable).
+const SERVICIO_USUARIOS = {
+  obtener: () => obtenerUsuarios(),
+  crear: (d) => crearUsuario(d),
+  actualizar: (id, d) => actualizarUsuario(id, d),
+  eliminar: (id) => eliminarUsuario(id),
 };
 
-// Eventos indexados por día del mes. tipo: 'concluido' | 'pendiente'
-const EVENTOS_DEFAULT = {
-  6: [{ titulo: 'Entrega Constancias', tipo: 'concluido' }],
-  8: [
-    { titulo: 'Congreso Nutrición', tipo: 'pendiente' },
-    { titulo: 'Jornada Vacunación', tipo: 'concluido' },
-  ],
-  11: [{ titulo: 'Campaña Sexual', tipo: 'pendiente' }],
-  12: [{ titulo: 'Día de las Madres', tipo: 'concluido' }],
-  16: [{ titulo: 'Triatlón UPB', tipo: 'concluido' }],
+const METRICAS_DEFAULT = {
+  profesores: 0,
+  fichas: 0,
+  constancias: 0,
 };
+
+// Eventos del calendario (vacío: se llena desde el backend). tipo: 'concluido' | 'pendiente'
+const EVENTOS_DEFAULT = {};
 
 const ACCESOS_DEFAULT = [
   'Validar Profesores Pendientes',
@@ -37,11 +48,8 @@ const ACCESOS_DEFAULT = [
   'Descargar Reportes de Cierre',
 ];
 
-const ACTIVIDAD_DEFAULT = [
-  { tipo: 'aprobado', texto: 'Mtro. Fabián Johanan aprobó el registro del nuevo profesor de TI.', tiempo: 'Hace 5m' },
-  { tipo: 'subida', texto: 'Ing. Erick Rosas subió la ficha de Conmemoración del Día de las Madres.', tiempo: 'Hace 1h' },
-  { tipo: 'descarga', texto: 'Se descargó la lista de enlaces Excel desde el rol Coordinador.', tiempo: 'Hace 3h' },
-];
+// Actividad reciente (vacío: se llena desde el backend).
+const ACTIVIDAD_DEFAULT = [];
 
 // Estructura del menú lateral administrativo
 const NAV_ADMIN = [
@@ -63,6 +71,7 @@ const NAV_ADMIN = [
     ],
   },
   { clave: 'aprobacion-profesores', etiqueta: 'Aprobación de Profesores' },
+  { clave: 'config-firmas', etiqueta: 'Firmas de Documentos' },
 ];
 
 const MESES = [
@@ -112,16 +121,47 @@ const CentroControl = ({
   actividad = ACTIVIDAD_DEFAULT,
   mesInicial = 4, // Mayo (0-indexado)
   anioInicial = 2026,
+  fichas = [],
+  agregarFicha = () => {},
+  validarFicha = () => {},
+  actualizarFicha = () => {},
+  guardarPrograma = () => {},
+  guardarInforme = () => {},
+  rechazarFicha = () => {},
   alNavegar = () => {},
   alAccesoDirecto = () => {},
   alCerrarSesion = () => {},
 }) => {
   const [vistaActiva, setVistaActiva] = useState('inicio');
+  const [menuUsuario, setMenuUsuario] = useState(false);
   const [mes, setMes] = useState(mesInicial);
   const [anio, setAnio] = useState(anioInicial);
   // Flujo de la Ficha de Evento (3 etapas) reutilizado del portal docente
   const [etapaFicha, setEtapaFicha] = useState(1);
   const [nombreActividad, setNombreActividad] = useState('');
+  const [borradorFicha, setBorradorFicha] = useState(null);
+  // Ficha en revisión (solo lectura) o en edición por el coordinador.
+  const [fichaRevision, setFichaRevision] = useState(null);
+  const [fichaEdicion, setFichaEdicion] = useState(null);
+  // Etapa activa dentro del asistente de edición (1, 2 o 3).
+  const [etapaEdicion, setEtapaEdicion] = useState(1);
+
+  // Adapta las fichas del almacén al formato que espera Aprobación de Eventos.
+  const eventosParaAprobacion = fichas.map((f) => ({
+    id: f.id,
+    evento: f.nombre,
+    carrera: f.carrera,
+    extension: null,
+    periodo: f.cuatrimestre,
+    docente: f.docente,
+    etapa1: f.etapa1,
+    etapa2: f.etapa2?.estado === 'finalizado' ? 'validado' : (f.etapa2?.estado || 'pendiente'),
+    etapa3: f.etapa3?.estado || 'pendiente',
+    fecha: f.fecha,
+    hora: f.hora,
+  }));
+  // Folio único que enlaza la Etapa 1 con la Etapa 3
+  const [folio, setFolio] = useState(() => `UPB-FT-2026-${Math.floor(1000 + Math.random() * 9000)}`);
 
   const celdas = construirCeldas(anio, mes);
 
@@ -157,7 +197,13 @@ const CentroControl = ({
     <div className="cc-layout">
       {/* ================= SIDEBAR ADMINISTRATIVO ================= */}
       <aside className="cc-sidebar">
-        <div className="cc-brand">SRAA</div>
+        <div className="cc-brand">
+          <img
+            src="/img/logo-blanco-horizontal@2x.png"
+            alt="UPB · SRAA"
+            className="cc-brand-logo"
+          />
+        </div>
 
         <nav className="cc-nav">
           {NAV_ADMIN.map((item) =>
@@ -194,14 +240,56 @@ const CentroControl = ({
         {/* HEADER */}
         <header className="cc-header">
           <div className="cc-header-institution">
-            <span className="cc-header-logo">🎓</span>
+            <img
+              src="/img/logo-horizontal-upb@2x.png"
+              alt="Universidad Politécnica de Bacalar"
+              className="cc-header-logo-img"
+            />
             <span className="cc-header-univ">UNIVERSIDAD POLITÉCNICA DE BACALAR</span>
           </div>
           <div className="cc-header-actions">
-            <div className="cc-user-badge">
-              <span className="cc-user-initials">{iniciales}</span>
-              <span className="cc-user-name">{usuario.nombre}</span>
-              <span className="cc-user-arrow">▾</span>
+            <div className="cc-user-menu-wrap">
+              <button
+                type="button"
+                className="cc-user-badge"
+                onClick={() => setMenuUsuario((v) => !v)}
+                aria-haspopup="true"
+                aria-expanded={menuUsuario}
+              >
+                <span className="cc-user-initials">{iniciales}</span>
+                <span className="cc-user-name">{usuario.nombre}</span>
+                <span className={`cc-user-arrow ${menuUsuario ? 'abierto' : ''}`}>▾</span>
+              </button>
+
+              {menuUsuario && (
+                <>
+                  <div className="cc-user-backdrop" onClick={() => setMenuUsuario(false)} />
+                  <div className="cc-user-dropdown" role="menu">
+                    <div className="cc-user-dropdown-head">
+                      <span className="cc-user-dropdown-avatar">{iniciales}</span>
+                      <div>
+                        <strong>{usuario.nombre}</strong>
+                        {usuario.correo && <span className="cc-user-dropdown-mail">{usuario.correo}</span>}
+                        {usuario.rol && <span className="cc-user-dropdown-rol">{usuario.rol}</span>}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      className="cc-user-dropdown-item"
+                      onClick={() => { setMenuUsuario(false); seleccionarVista('config-firmas'); }}
+                    >
+                      ✍️ Firmas de Documentos
+                    </button>
+                    <button
+                      type="button"
+                      className="cc-user-dropdown-item cc-user-dropdown-salir"
+                      onClick={() => { setMenuUsuario(false); alCerrarSesion(); }}
+                    >
+                      ⎋ Cerrar sesión
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
             <button type="button" className="cc-logout-btn" onClick={alCerrarSesion}>
               Cerrar sesión
@@ -334,21 +422,153 @@ const CentroControl = ({
 
           {vistaActiva === 'aprobacion-eventos' && (
             <AprobacionEventos
-              alRevisar={(id) => console.log('Revisar evento', id)}
-              alValidar={(id) => console.log('Validar evento', id)}
-              alEditar={(id) => console.log('Editar evento', id)}
-              alRechazar={(id) => console.log('Rechazar evento', id)}
-              alDescargarFicha={(id) => console.log('Descargar ficha', id)}
+              datosEventos={eventosParaAprobacion}
+              alRevisar={(id) => {
+                setFichaRevision(fichas.find((f) => f.id === id) || null);
+                setVistaActiva('revisar-ficha');
+              }}
+              alValidar={(id) => validarFicha(id)}
+              alEditar={(id) => {
+                const f = fichas.find((x) => x.id === id);
+                if (!f) return;
+                setFichaEdicion(f);
+                setFolio(f.folio || '');
+                setNombreActividad(f.nombre || '');
+                setEtapaEdicion(1);
+                setVistaActiva('editar-ficha');
+              }}
+              alRechazar={(id) => rechazarFicha(id)}
+              alDescargarFicha={(id) => generarFichaPDF(fichas.find((f) => f.id === id))}
+              alDescargarInforme={(id) => generarInformePDF(fichas.find((f) => f.id === id))}
             />
+          )}
+
+          {vistaActiva === 'revisar-ficha' && (
+            <FichaTecnicaVista
+              ficha={fichaRevision}
+              alVolver={() => setVistaActiva('aprobacion-eventos')}
+            />
+          )}
+
+          {vistaActiva === 'editar-ficha' && fichaEdicion && (
+            <>
+              {etapaEdicion === 1 && (
+                <FichaEventoEtapa1
+                  folio={folio}
+                  setFolio={setFolio}
+                  nombreActividad={nombreActividad}
+                  setNombreActividad={setNombreActividad}
+                  datosIniciales={fichaEdicion?.tecnica}
+                  textoBoton="Guardar"
+                  alGuardar={(datos) => {
+                    actualizarFicha(fichaEdicion.id, datos);
+                    setEtapaEdicion(2);
+                  }}
+                  alCancelar={() => { setEtapaEdicion(1); setVistaActiva('aprobacion-eventos'); }}
+                />
+              )}
+              {etapaEdicion === 2 && (
+                <FichaEventoEtapa2
+                  nombreActividad={nombreActividad}
+                  datosIniciales={{ itinerario: fichaEdicion?.programa }}
+                  textoBoton="Guardar"
+                  alAvanzar={(datosE2) => {
+                    guardarPrograma(fichaEdicion.id, datosE2.itinerario);
+                    setEtapaEdicion(3);
+                  }}
+                  alRetroceder={() => setEtapaEdicion(1)}
+                />
+              )}
+              {etapaEdicion === 3 && (
+                <FichaEventoEtapa3
+                  ficha={fichaEdicion}
+                  folio={fichaEdicion?.folio || folio}
+                  textoBoton="Guardar"
+                  alGuardarInforme={(id, datos) => guardarInforme(id, datos)}
+                  alFinalizar={() => { setEtapaEdicion(1); setVistaActiva('aprobacion-eventos'); }}
+                  alRetroceder={() => setEtapaEdicion(2)}
+                />
+              )}
+            </>
+          )}
+
+          {vistaActiva === 'informe-evento' && (
+            <div className="cc-descargas-workspace">
+              <div className="ap-title-section">
+                <h1>Descargar Informe de Evento</h1>
+                <p className="cc-descargas-sub">
+                  Informes de Actividades Académicas de los eventos ya finalizados.
+                </p>
+              </div>
+              <div className="ap-tabla-card">
+                <table className="ap-tabla cc-tabla-descargas">
+                  <thead>
+                    <tr>
+                      <th className="ap-col-num">N°</th>
+                      <th>Folio</th>
+                      <th>Evento Académico</th>
+                      <th>Programa Educativo</th>
+                      <th>Docente</th>
+                      <th>Etapa 3</th>
+                      <th>Fecha</th>
+                      <th className="ap-col-accion">Descarga</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {fichas.length === 0 ? (
+                      <tr>
+                        <td colSpan={8} className="ap-fila-vacia">
+                          Aún no hay eventos registrados.
+                        </td>
+                      </tr>
+                    ) : (
+                      fichas.map((f, i) => {
+                        const finalizado = f.etapa3?.estado === 'finalizado';
+                        return (
+                          <tr key={f.id}>
+                            <td className="ap-col-num">{i + 1}</td>
+                            <td>{f.folio || '—'}</td>
+                            <td><strong>{f.nombre}</strong></td>
+                            <td>{f.carrera || '—'}</td>
+                            <td>{f.docente?.nombre || '—'}</td>
+                            <td>
+                              {finalizado ? (
+                                <span className="ap-chip ap-chip-validado">✔ Finalizado</span>
+                              ) : (
+                                <span className="ap-chip ap-chip-pendiente">⧗ Pendiente</span>
+                              )}
+                            </td>
+                            <td>{f.fecha}</td>
+                            <td className="ap-col-accion">
+                              <button
+                                type="button"
+                                className={`cc-btn-descarga ${finalizado ? '' : 'cc-btn-descarga-off'}`}
+                                disabled={!finalizado}
+                                onClick={() => generarInformePDF(f)}
+                                title={finalizado ? 'Descargar Informe de Actividades' : 'El informe aún no se completa'}
+                              >
+                                📑 Descargar Informe
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           )}
 
           {vistaActiva === 'crear-ficha' && (
             <>
               {etapaFicha === 1 && (
                 <FichaEventoEtapa1
+                  folio={folio}
+                  setFolio={setFolio}
                   nombreActividad={nombreActividad}
                   setNombreActividad={setNombreActividad}
-                  alAvanzar={() => setEtapaFicha(2)}
+                  alAvanzar={(datos) => { setBorradorFicha(datos); setEtapaFicha(2); }}
                   alCancelar={() => seleccionarVista('inicio')}
                 />
               )}
@@ -356,12 +576,13 @@ const CentroControl = ({
                 <FichaEventoEtapa2
                   nombreActividad={nombreActividad}
                   setNombreActividad={setNombreActividad}
-                  alAvanzar={() => setEtapaFicha(3)}
+                  alAvanzar={(datosE2) => { agregarFicha(borradorFicha, datosE2); seleccionarVista('aprobacion-eventos'); }}
                   alRetroceder={() => setEtapaFicha(1)}
                 />
               )}
               {etapaFicha === 3 && (
                 <FichaEventoEtapa3
+                  folio={folio}
                   alFinalizar={() => {
                     setEtapaFicha(1);
                     seleccionarVista('inicio');
@@ -374,22 +595,42 @@ const CentroControl = ({
 
           {vistaActiva === 'crear-constancia' && (
             <CrearConstancia
+              emisor={usuario.nombre}
               alGenerar={(payload) => console.log('Constancia enviada:', payload)}
               alVisualizar={(payload) => console.log('Vista previa:', payload)}
             />
           )}
 
           {MODULOS_ADMIN[vistaActiva] && (
-            <CrudAdmin key={vistaActiva} config={MODULOS_ADMIN[vistaActiva]} />
+            vistaActiva === 'usuarios' ? (
+              <CrudAdmin key="usuarios" servicio={SERVICIO_USUARIOS} config={MODULOS_ADMIN.usuarios} />
+            ) : (
+              <CrudAdmin key={vistaActiva} tipo={vistaActiva} config={MODULOS_ADMIN[vistaActiva]} />
+            )
           )}
 
           {vistaActiva === 'aprobacion-profesores' && <AprobacionProfesores />}
 
+          {vistaActiva === 'config-firmas' && <ConfigFirmas />}
+
           {vistaActiva === 'mis-constancias' && (
-            <CrudAdmin key="mis-constancias" config={CONFIG_CONSTANCIAS} />
+            <CrudAdmin
+              key="mis-constancias"
+              servicio={SERVICIO_CONSTANCIAS}
+              config={CONFIG_CONSTANCIAS}
+              alDescargar={(c) =>
+                generarConstanciaPDF({
+                  tipo: c.tipo || 'Constancia',
+                  evento: c.titulo || '',
+                  fecha: c.fecha || '',
+                  texto: c.descripcion || '',
+                  destinatarios: [c.destinatario || ''],
+                })
+              }
+            />
           )}
 
-          {!['inicio', 'aprobacion-eventos', 'crear-ficha', 'crear-constancia', 'aprobacion-profesores', 'mis-constancias'].includes(vistaActiva) &&
+          {!['inicio', 'aprobacion-eventos', 'crear-ficha', 'revisar-ficha', 'editar-ficha', 'informe-evento', 'crear-constancia', 'aprobacion-profesores', 'mis-constancias', 'config-firmas'].includes(vistaActiva) &&
             !MODULOS_ADMIN[vistaActiva] && (
             <div className="cc-placeholder">
               <span className="cc-placeholder-icon">🚧</span>

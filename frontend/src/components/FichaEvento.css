@@ -84,6 +84,22 @@
   background: #3b82f6;
 }
 
+/* TÍTULOS DE SECCIÓN DENTRO DEL FORMULARIO */
+.form-section-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #061e43;
+  padding-bottom: 8px;
+  margin-top: 8px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.form-hint-inline {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #94a3b8;
+}
+
 /* MAQUETACIÓN INTERNA DEL FORMULARIO */
 .ficha-evento-form-grid {
   display: flex;

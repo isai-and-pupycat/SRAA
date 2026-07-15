@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import './AprobacionEventos.css';
 
 /*
@@ -19,68 +20,8 @@ import './AprobacionEventos.css';
  *   hora: string                // '09:00 - 16:00 Hrs'
  * }
  */
-const EVENTOS_DEFAULT = [
-  {
-    id: 1,
-    evento: 'Congreso Iberoamericano de Salud y Nutrición Cancún 2026',
-    carrera: 'Licenciatura en Nutrición',
-    extension: 'Ext. 104',
-    periodo: '2026-1',
-    docente: { nombre: 'Lic. Elena Zapata', rol: 'profesor' },
-    etapa1: 'validado',
-    etapa2: 'pendiente',
-    fecha: '08/05/2026',
-    hora: '09:00 - 16:00 Hrs',
-  },
-  {
-    id: 2,
-    evento: 'Entrega de constancias fortalece la formación turística en la UPB',
-    carrera: 'Licenciatura en Gestión y Desarrollo Turístico',
-    extension: 'Ext. 108',
-    periodo: '2026-1',
-    docente: { nombre: 'Mtro. Fabián Johanan', rol: 'coordinador' },
-    etapa1: 'validado',
-    etapa2: 'pendiente',
-    fecha: '06/05/2026',
-    hora: '11:00 - 13:00 Hrs',
-  },
-  {
-    id: 3,
-    evento: 'Jornada de vacunación en la UPB',
-    carrera: 'Licenciatura en Nutrición',
-    extension: 'Bienestar Institucional',
-    periodo: '2026-1',
-    docente: { nombre: 'Mtro. Johanan', rol: 'profesor' },
-    etapa1: 'validado',
-    etapa2: 'pendiente',
-    fecha: '08/05/2026',
-    hora: '08:00 - 14:00 Hrs',
-  },
-  {
-    id: 4,
-    evento: 'Campaña de salud sexual en la UPB',
-    carrera: 'Ingeniería en IT e Innovación Digital',
-    extension: null,
-    periodo: '2026-2',
-    docente: { nombre: 'Lic. Oscar Enrique', rol: 'profesor' },
-    etapa1: 'validado',
-    etapa2: 'pendiente',
-    fecha: '11/05/2026',
-    hora: '10:00 - 15:00 Hrs',
-  },
-  {
-    id: 5,
-    evento: 'Conmemora UPB el Día de las Madres',
-    carrera: 'Tronco Común',
-    extension: 'Cultura Universitaria',
-    periodo: '2026-2',
-    docente: { nombre: 'Ing. Erick Rosas', rol: 'profesor' },
-    etapa1: 'validado',
-    etapa2: 'validado',
-    fecha: '12/05/2026',
-    hora: '12:00 - 15:00 Hrs',
-  },
-];
+// Vacío: se llena con las fichas enviadas por los docentes (o desde el backend).
+const EVENTOS_DEFAULT = [];
 
 // Estatus global del evento: validado solo si ambas etapas lo están.
 const estatusEvento = (ev) =>
@@ -97,6 +38,9 @@ const EstadoChip = ({ estado }) => {
   if (estado === 'validado') {
     return <span className="ap-chip ap-chip-validado">✔ Validado</span>;
   }
+  if (estado === 'finalizado') {
+    return <span className="ap-chip ap-chip-validado">✔ Finalizado</span>;
+  }
   return <span className="ap-chip ap-chip-pendiente">⧗ Pendiente</span>;
 };
 
@@ -112,6 +56,7 @@ const AprobacionEventos = ({
   alEditar = () => {},
   alRechazar = () => {},
   alDescargarFicha = () => {},
+  alDescargarInforme = () => {},
 }) => {
   const [periodo, setPeriodo] = useState('todos');
   const [busqueda, setBusqueda] = useState('');
@@ -215,7 +160,8 @@ const AprobacionEventos = ({
               <th className="ap-col-evento">Evento Académico Registrado</th>
               <th>Docente Organizador</th>
               <th>Etapa 1: Ficha Técnica</th>
-              <th>Etapa 2: Evidencias Técnicas</th>
+              <th>Etapa 2: Orden del Día</th>
+              <th>Etapa 3: Cierre y Evidencias</th>
               <th>Fecha / Hora</th>
               <th className="ap-col-accion">Acción</th>
             </tr>
@@ -223,7 +169,7 @@ const AprobacionEventos = ({
           <tbody>
             {eventosFiltrados.length === 0 ? (
               <tr>
-                <td colSpan={7} className="ap-fila-vacia">
+                <td colSpan={8} className="ap-fila-vacia">
                   No se encontraron eventos para el filtro seleccionado.
                 </td>
               </tr>
@@ -260,6 +206,10 @@ const AprobacionEventos = ({
 
                   <td>
                     <EstadoChip estado={ev.etapa2} />
+                  </td>
+
+                  <td>
+                    <EstadoChip estado={ev.etapa3} />
                   </td>
 
                   <td>
@@ -304,8 +254,9 @@ const AprobacionEventos = ({
         </table>
       </div>
 
-      {/* DROPDOWN DE ACCIONES (posición fija para no recortarse en la tabla) */}
-      {menu && (
+      {/* DROPDOWN DE ACCIONES · se monta en el <body> (portal) para que ningún
+          contenedor con `transform` altere su posición ni lo recorte. */}
+      {menu && createPortal(
         <>
           <div className="ap-menu-backdrop" onClick={cerrarMenu} />
           <div className="ap-menu" style={{ top: menu.y, left: menu.x - 220 }}>
@@ -319,8 +270,12 @@ const AprobacionEventos = ({
             <button type="button" onClick={() => ejecutar(alDescargarFicha, menu.id)}>
               📄 Descargar Ficha de Evento
             </button>
+            <button type="button" onClick={() => ejecutar(alDescargarInforme, menu.id)}>
+              📑 Descargar Informe de Actividades
+            </button>
           </div>
-        </>
+        </>,
+        document.body
       )}
     </div>
   );

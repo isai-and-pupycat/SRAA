@@ -23,52 +23,8 @@ import './ListadoFichas.css';
  *   hora: string                    // '09:00 - 14:00'
  * }
  */
-const FICHAS_EJEMPLO = [
-  {
-    id: 1,
-    nombre: 'Muestra Tecnológica de Innovación Digital 2026',
-    carrera: 'Ingeniería en IT e Innovación Digital',
-    cuatrimestre: '2026-2',
-    etapa1: 'validado',
-    etapa2: { estado: 'incompleto', porcentaje: 40, faltantes: ['Descripción', 'Logros', 'Fotos'] },
-    etapa3: { estado: 'pendiente' },
-    fecha: '16/06/2026',
-    hora: '09:00 - 14:00',
-  },
-  {
-    id: 2,
-    nombre: 'Brigada Universitaria de Evaluación Nutricional Comunitaria',
-    carrera: 'Licenciatura en Nutrición',
-    cuatrimestre: '2026-2',
-    etapa1: 'validado',
-    etapa2: { estado: 'incompleto', porcentaje: 25, faltantes: ['Testigos Fotográficos'] },
-    etapa3: { estado: 'pendiente' },
-    fecha: '18/06/2026',
-    hora: '08:00 - 15:00',
-  },
-  {
-    id: 3,
-    nombre: 'Exposición de Modelado 3D y Cortometrajes ARTMOSFERA',
-    carrera: 'Ingeniería en Animación y Efectos Visuales',
-    cuatrimestre: '2026-1',
-    etapa1: 'validado',
-    etapa2: { estado: 'finalizado' },
-    etapa3: { estado: 'en-validacion' },
-    fecha: '24/06/2026',
-    hora: '10:00 - 18:00',
-  },
-  {
-    id: 4,
-    nombre: 'Foro de Gestión y Desarrollo Turístico Sustentable Pueblo Mágico',
-    carrera: 'Licenciatura en Gestión y Desarrollo Turístico',
-    cuatrimestre: '2025-3',
-    etapa1: 'validado',
-    etapa2: { estado: 'finalizado' },
-    etapa3: { estado: 'finalizado' },
-    fecha: '12/11/2025',
-    hora: '09:00 - 16:00',
-  },
-];
+// Vacío: el listado se llena conforme se crean fichas (o desde el backend).
+const FICHAS_EJEMPLO = [];
 
 /* -------- Indicador de estado para la Etapa 1 -------- */
 const EstadoEtapa1 = ({ estado }) => {
@@ -82,6 +38,10 @@ const EstadoEtapa1 = ({ estado }) => {
 const EstadoEtapa = ({ etapa }) => {
   if (etapa.estado === 'finalizado') {
     return <span className="badge-estado badge-finalizado">✔ Finalizado</span>;
+  }
+
+  if (etapa.estado === 'validado') {
+    return <span className="badge-estado badge-validado">✔ Validado</span>;
   }
 
   if (etapa.estado === 'en-validacion') {
@@ -119,36 +79,47 @@ const EstadoEtapa = ({ etapa }) => {
 };
 
 /* -------- Botón de acción secundario según el avance de la ficha -------- */
-const AccionSecundaria = ({ ficha, alSeleccionarFicha }) => {
-  const estados = [ficha.etapa2.estado, ficha.etapa3.estado];
+const AccionSecundaria = ({ ficha, alSeleccionarFicha, alDescargarInforme }) => {
+  // 1) Informe ya finalizado → se puede DESCARGAR el Informe de Actividades.
+  if (ficha.etapa3.estado === 'finalizado') {
+    return (
+      <button
+        type="button"
+        className="btn-accion btn-descargar"
+        onClick={() => alDescargarInforme(ficha)}
+      >
+        ⬇ Descargar Informe
+      </button>
+    );
+  }
 
-  // Si alguna etapa aún está incompleta o pendiente, se permite EDITAR.
-  if (estados.some((e) => e === 'incompleto' || e === 'pendiente')) {
+  // 2) El coordinador ya validó (Etapa 1) → el docente completa el Informe (Etapa 3).
+  if (ficha.etapa1 === 'validado') {
     return (
       <button
         type="button"
         className="btn-accion btn-editar"
         onClick={() => alSeleccionarFicha(ficha.id, 'editar')}
       >
-        ✎ Editar
+        ✎ Completar Informe
       </button>
     );
   }
 
-  // Descarga habilitada solo cuando la última etapa está finalizada.
-  const habilitado = ficha.etapa3.estado === 'finalizado';
+  // 3) Aún sin validar por el coordinador → en espera.
   return (
-    <button
-      type="button"
-      className={`btn-accion btn-descargar ${habilitado ? '' : 'btn-deshabilitado'}`}
-      disabled={!habilitado}
-    >
-      ⬇ Descargar
+    <button type="button" className="btn-accion btn-descargar btn-deshabilitado" disabled>
+      ⧗ En validación
     </button>
   );
 };
 
-const ListadoFichas = ({ datosFichas = FICHAS_EJEMPLO, alSeleccionarFicha = () => {} }) => {
+const ListadoFichas = ({
+  datosFichas = FICHAS_EJEMPLO,
+  alSeleccionarFicha = () => {},
+  alEliminarFicha = () => {},
+  alDescargarInforme = () => {},
+}) => {
   const [periodo, setPeriodo] = useState('todos');
   const [busqueda, setBusqueda] = useState('');
 
@@ -267,7 +238,15 @@ const ListadoFichas = ({ datosFichas = FICHAS_EJEMPLO, alSeleccionarFicha = () =
                       <AccionSecundaria
                         ficha={ficha}
                         alSeleccionarFicha={alSeleccionarFicha}
+                        alDescargarInforme={alDescargarInforme}
                       />
+                      <button
+                        type="button"
+                        className="btn-accion btn-eliminar"
+                        onClick={() => alEliminarFicha(ficha.id)}
+                      >
+                        🗑 Eliminar
+                      </button>
                     </div>
                   </td>
                 </tr>

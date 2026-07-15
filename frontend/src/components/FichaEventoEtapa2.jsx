@@ -1,19 +1,24 @@
 import { useState } from 'react';
 import './FichaEventoEtapa2.css';
 
-const FichaEventoEtapa2 = ({ nombreActividad, setNombreActividad, alAvanzar, alRetroceder }) => {
-  // Lógica condicional: si requiere o no el orden del día
-  const [requiereOrden, setRequiereOrden] = useState('si');
+const FichaEventoEtapa2 = ({
+  nombreActividad,
+  alAvanzar,
+  alRetroceder,
+  datosIniciales = null,               // itinerario previo (modo edición)
+  textoBoton = 'Enviar',
+}) => {
+  const di = datosIniciales || {};
 
-  // Arreglo dinámico inicializado con los datos de image_742c15.png
-  const [itinerario, setItinerario] = useState([
-    {
-      horaInicio: '09:00',
-      horaFin: '09:10',
-      actividad: 'Registro de invitados',
-      responsables: 'Estudiantes de tecnologías de 6to cuatrimestre'
-    }
-  ]);
+  // Lógica condicional: si requiere o no el orden del día
+  const [requiereOrden, setRequiereOrden] = useState(di.requiereOrden || 'si');
+
+  // Itinerario dinámico: precargado (edición) o una fila vacía lista para llenar
+  const [itinerario, setItinerario] = useState(
+    di.itinerario?.length
+      ? di.itinerario
+      : [{ horaInicio: '', horaFin: '', actividad: '', responsables: '' }]
+  );
 
   // Agregar una nueva fila vacía al itinerario
   const handleAddFila = () => {
@@ -39,8 +44,9 @@ const FichaEventoEtapa2 = ({ nombreActividad, setNombreActividad, alAvanzar, alR
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Datos de la Etapa 2 listos para enviarse:", { requiereOrden, nombreActividad, itinerario });
-    alAvanzar(); // Pasa a la Etapa 3
+    const datosEtapa2 = { requiereOrden, itinerario };
+    console.log("Ficha Técnica enviada al coordinador para validación:", datosEtapa2);
+    alAvanzar(datosEtapa2); // Envía la ficha (Etapa 2) al coordinador
   };
 
   return (
@@ -68,15 +74,12 @@ const FichaEventoEtapa2 = ({ nombreActividad, setNombreActividad, alAvanzar, alR
       <form onSubmit={handleSubmit} className="agenda-structure-card">
         <h3>Estructura del Orden del Día</h3>
 
-        {/* NOMBRE DE LA ACTIVIDAD DEL ORDEN DEL DÍA */}
-        <div className="agenda-nombre-field">
-          <label>Nombre de la Actividad</label>
-          <input
-            type="text"
-            placeholder="Ej. Hackatón Come Datos 2025"
-            value={nombreActividad}
-            onChange={(e) => setNombreActividad(e.target.value)}
-          />
+        {/* NOMBRE DE LA ACTIVIDAD (solo lectura, definido en la Etapa 1) */}
+        <div className="agenda-nombre-display">
+          <span className="agenda-nombre-label">Actividad:</span>
+          <span className="agenda-nombre-titulo">
+            {nombreActividad || 'Actividad sin nombre'}
+          </span>
         </div>
 
         {/* INTERRUPTOR RADIO BUTTONS */}
@@ -173,7 +176,7 @@ const FichaEventoEtapa2 = ({ nombreActividad, setNombreActividad, alAvanzar, alR
         {/* ACCIONES DE NAVEGACIÓN DEL FORMULARIO */}
         <div className="stage2-footer-navigation">
           <button type="button" className="btn-nav-back" onClick={alRetroceder}>Atrás</button>
-          <button type="submit" className="btn-nav-next">Siguiente: Etapa 3</button>
+          <button type="submit" className="btn-nav-next">{textoBoton}</button>
         </div>
 
       </form>

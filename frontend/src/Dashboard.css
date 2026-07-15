@@ -113,6 +113,10 @@ body {
   font-weight: 600;
 }
 
+.user-menu-wrap {
+  position: relative;
+}
+
 .user-badge {
   display: flex;
   align-items: center;
@@ -121,6 +125,115 @@ body {
   padding: 6px 14px;
   border-radius: 20px;
   border: 1px solid #e2e8f0;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.user-badge:hover {
+  background: #eef2f7;
+  border-color: #cbd5e1;
+}
+
+.arrow-down.abierto {
+  transform: rotate(180deg);
+}
+
+/* ---- Menú desplegable del usuario (docente) ---- */
+.user-menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+}
+
+.user-menu-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 41;
+  width: 250px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+  padding: 8px;
+}
+
+.user-menu-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 10px 12px;
+  border-bottom: 1px solid #eef2f7;
+  margin-bottom: 6px;
+}
+
+.user-menu-head > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.user-menu-head strong {
+  font-size: 0.9rem;
+  color: #061e43;
+}
+
+.user-menu-avatar {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #061e43;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.user-menu-mail {
+  font-size: 0.75rem;
+  color: #64748b;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-menu-rol {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #3b82f6;
+  margin-top: 2px;
+}
+
+.user-menu-item {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.user-menu-item:hover {
+  background: #f1f5f9;
+}
+
+.user-menu-salir {
+  color: #b91c1c;
+}
+
+.user-menu-salir:hover {
+  background: #fee2e2;
 }
 
 .user-initials {

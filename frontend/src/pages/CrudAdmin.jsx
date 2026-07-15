@@ -1,6 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import './AprobacionEventos.css'; // reutilizamos el estilo de tabla (consistencia)
 import './AdminCrud.css';
+import {
+  obtenerCatalogo,
+  crearItem,
+  actualizarItem,
+  eliminarItem,
+} from '../services/catalogosService';
 
 // Genera un objeto de valores vacíos a partir de la definición de campos.
 const valoresVacios = (campos) => {
@@ -16,14 +23,59 @@ const valoresVacios = (campos) => {
  * Recibe `config` (ver adminModulos.js) y resuelve listar/crear/editar/eliminar
  * con un modal y validaciones básicas. Un solo componente para los 5 módulos.
  */
-const CrudAdmin = ({ config }) => {
+const CrudAdmin = ({ config, tipo = null, servicio = null, alDescargar = null }) => {
   const { titulo, subtitulo, singular, columnas, campos, datos } = config;
 
-  const [registros, setRegistros] = useState(datos);
+  // Fuente de datos: `servicio` (ej. usuarios), `tipo` (catálogo genérico) o memoria.
+  const enBackend = !!(tipo || servicio);
+  const svcObtener = () => (servicio ? servicio.obtener() : obtenerCatalogo(tipo));
+  const svcCrear = (d) => (servicio ? servicio.crear(d) : crearItem(tipo, d));
+  const svcActualizar = (id, d) => (servicio ? servicio.actualizar(id, d) : actualizarItem(tipo, id, d));
+  const svcEliminar = (id) => (servicio ? servicio.eliminar(id) : eliminarItem(tipo, id));
+
+  const [registros, setRegistros] = useState(enBackend ? [] : datos);
   const [busqueda, setBusqueda] = useState('');
   const [modal, setModal] = useState(null); // { modo: 'crear' | 'editar', id? }
   const [valores, setValores] = useState({});
   const [errores, setErrores] = useState({});
+
+  // Opciones de selects que provienen de otro catálogo (campo.opcionesDe).
+  const [opcionesExternas, setOpcionesExternas] = useState({});
+
+  // Al montar (o cambiar de módulo), carga los registros desde el backend.
+  useEffect(() => {
+    if (!enBackend) return;
+    svcObtener()
+      .then(setRegistros)
+      .catch((error) => console.error('No se pudieron cargar los registros:', error));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tipo, servicio]);
+
+  // Carga los catálogos referenciados por los selects dinámicos.
+  useEffect(() => {
+    const fuentes = [...new Set(campos.filter((c) => c.opcionesDe).map((c) => c.opcionesDe))];
+    if (fuentes.length === 0) return;
+    Promise.all(
+      fuentes.map((f) =>
+        obtenerCatalogo(f)
+          .then((items) => [f, items])
+          .catch(() => [f, []])
+      )
+    ).then((pares) => {
+      const mapa = {};
+      pares.forEach(([f, items]) => {
+        mapa[f] = items
+          .filter((i) => i.estado !== 'Inactivo')
+          .map((i) => i.nombre)
+          .filter(Boolean);
+      });
+      setOpcionesExternas(mapa);
+    });
+  }, [campos]);
+
+  // Resuelve las opciones de un campo select (estáticas o de otro catálogo).
+  const opcionesDeCampo = (campo) =>
+    campo.opcionesDe ? (opcionesExternas[campo.opcionesDe] || []) : (campo.opciones || []);
 
   const abrirCrear = () => {
     setValores(valoresVacios(campos));
@@ -57,7 +109,7 @@ const CrudAdmin = ({ config }) => {
     return errs;
   };
 
-  const guardar = (e) => {
+  const guardar = async (e) => {
     e.preventDefault();
     const errs = validar();
     if (Object.keys(errs).length > 0) {
@@ -65,18 +117,51 @@ const CrudAdmin = ({ config }) => {
       return;
     }
 
+    const payload = { ...valores };
+    delete payload.id;
+
     if (modal.modo === 'crear') {
-      const nuevoId = registros.length ? Math.max(...registros.map((r) => r.id)) + 1 : 1;
-      setRegistros((prev) => [...prev, { id: nuevoId, ...valores }]);
+      if (enBackend) {
+        try {
+          const creado = await svcCrear(payload);
+          setRegistros((prev) => [...prev, creado]);
+        } catch (error) {
+          const msg = error?.response?.data?.message || 'No se pudo guardar. Revisa que el backend esté encendido.';
+          window.alert(msg);
+          return;
+        }
+      } else {
+        const nuevoId = registros.length ? Math.max(...registros.map((r) => r.id)) + 1 : 1;
+        setRegistros((prev) => [...prev, { id: nuevoId, ...payload }]);
+      }
+    } else if (enBackend) {
+      try {
+        const actualizado = await svcActualizar(modal.id, payload);
+        setRegistros((prev) => prev.map((r) => (r.id === modal.id ? actualizado : r)));
+      } catch (error) {
+        const msg = error?.response?.data?.message || 'No se pudo guardar. Revisa que el backend esté encendido.';
+        window.alert(msg);
+        return;
+      }
     } else {
-      setRegistros((prev) => prev.map((r) => (r.id === modal.id ? { ...r, ...valores } : r)));
+      setRegistros((prev) => prev.map((r) => (r.id === modal.id ? { ...r, ...payload } : r)));
     }
     cerrar();
   };
 
-  const eliminar = (registro) => {
+  const eliminar = async (registro) => {
     const etiqueta = registro[columnas[0].clave];
-    if (window.confirm(`¿Eliminar "${etiqueta}"? Esta acción no se puede deshacer.`)) {
+    if (!window.confirm(`¿Eliminar "${etiqueta}"? Esta acción no se puede deshacer.`)) return;
+
+    if (enBackend) {
+      try {
+        await svcEliminar(registro.id);
+        setRegistros((prev) => prev.filter((r) => r.id !== registro.id));
+      } catch (error) {
+        console.error('Error al eliminar registro:', error);
+        window.alert('No se pudo eliminar. Revisa que el backend esté encendido.');
+      }
+    } else {
       setRegistros((prev) => prev.filter((r) => r.id !== registro.id));
     }
   };
@@ -93,12 +178,10 @@ const CrudAdmin = ({ config }) => {
   const renderCelda = (registro, col) => {
     const valor = registro[col.clave];
     if (col.tipo === 'estado') {
-      const activo = valor === 'Activo';
-      return (
-        <span className={`ap-chip ${activo ? 'ap-chip-validado' : 'adm-chip-inactivo'}`}>
-          {valor}
-        </span>
-      );
+      const v = String(valor || '').toLowerCase();
+      const clase =
+        v === 'activo' ? 'ap-chip-validado' : v === 'pendiente' ? 'ap-chip-pendiente' : 'adm-chip-inactivo';
+      return <span className={`ap-chip ${clase}`}>{valor}</span>;
     }
     if (col.tipo === 'rol') {
       const claseRol = valor === 'docente' ? 'profesor' : 'coordinador';
@@ -159,6 +242,16 @@ const CrudAdmin = ({ config }) => {
                   ))}
                   <td className="adm-col-accion">
                     <div className="adm-acciones">
+                      {alDescargar && (
+                        <button
+                          type="button"
+                          className="ap-icon-btn adm-icon-descargar"
+                          title="Descargar PDF"
+                          onClick={() => alDescargar(registro)}
+                        >
+                          ⬇
+                        </button>
+                      )}
                       <button
                         type="button"
                         className="ap-icon-btn adm-icon-editar"
@@ -184,8 +277,9 @@ const CrudAdmin = ({ config }) => {
         </table>
       </div>
 
-      {/* MODAL DE ALTA / EDICIÓN */}
-      {modal && (
+      {/* MODAL DE ALTA / EDICIÓN · en un portal al <body> para que el fondo
+          oscuro cubra toda la pantalla (barra lateral y encabezado incluidos). */}
+      {modal && createPortal(
         <>
           <div className="adm-modal-backdrop" onClick={cerrar} />
           <div className="adm-modal" role="dialog" aria-modal="true">
@@ -205,17 +299,24 @@ const CrudAdmin = ({ config }) => {
                   </label>
 
                   {campo.tipo === 'select' ? (
-                    <select
-                      value={valores[campo.clave] ?? ''}
-                      onChange={(e) => cambiarCampo(campo.clave, e.target.value)}
-                    >
-                      <option value="">Seleccionar...</option>
-                      {campo.opciones.map((o) => (
-                        <option key={o} value={o}>
-                          {o}
-                        </option>
-                      ))}
-                    </select>
+                    <>
+                      <select
+                        value={valores[campo.clave] ?? ''}
+                        onChange={(e) => cambiarCampo(campo.clave, e.target.value)}
+                      >
+                        <option value="">Seleccionar...</option>
+                        {opcionesDeCampo(campo).map((o) => (
+                          <option key={o} value={o}>
+                            {o}
+                          </option>
+                        ))}
+                      </select>
+                      {campo.opcionesDe && opcionesDeCampo(campo).length === 0 && (
+                        <span className="adm-error">
+                          Primero registra al menos un registro en {campo.opcionesDe}.
+                        </span>
+                      )}
+                    </>
                   ) : (
                     <input
                       type={
@@ -225,7 +326,9 @@ const CrudAdmin = ({ config }) => {
                             ? 'date'
                             : campo.tipo === 'email'
                               ? 'email'
-                              : 'text'
+                              : campo.tipo === 'password'
+                                ? 'password'
+                                : 'text'
                       }
                       value={valores[campo.clave] ?? ''}
                       placeholder={campo.placeholder || ''}
@@ -247,7 +350,8 @@ const CrudAdmin = ({ config }) => {
               </div>
             </form>
           </div>
-        </>
+        </>,
+        document.body
       )}
     </div>
   );

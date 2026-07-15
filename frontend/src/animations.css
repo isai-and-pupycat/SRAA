@@ -1,0 +1,297 @@
+/* ==========================================================================
+   SRAA · Sistema global de animaciones y micro-interacciones
+   --------------------------------------------------------------------------
+   Se importa una sola vez en main.jsx. Da vida a toda la interfaz sin
+   necesidad de tocar cada componente: entradas de página, tarjetas con
+   relieve, botones con rebote, inputs con foco suave, filas de tabla, etc.
+   Todo respeta "prefers-reduced-motion" para la accesibilidad.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. KEYFRAMES
+   -------------------------------------------------------------------------- */
+@keyframes sraa-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Nota: cada animación TERMINA en `transform: none` (no en translateY(0) ni
+   scale(1)). Es clave: un transform distinto de `none` convierte al elemento
+   en marco de referencia de sus hijos `position: fixed`, lo que rompería los
+   menús desplegables (ej. el de Aprobación de Eventos). */
+@keyframes sraa-slide-up {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes sraa-slide-down {
+  from { opacity: 0; transform: translateY(-16px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes sraa-scale-in {
+  from { opacity: 0; transform: scale(0.94); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes sraa-pop-in {
+  0%   { opacity: 0; transform: scale(0.8); }
+  60%  { opacity: 1; transform: scale(1.04); }
+  100% { opacity: 1; transform: none; }
+}
+
+@keyframes sraa-shimmer {
+  0%   { background-position: -450px 0; }
+  100% { background-position: 450px 0; }
+}
+
+@keyframes sraa-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes sraa-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%      { transform: scale(1.06); opacity: 0.85; }
+}
+
+@keyframes sraa-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+
+/* --------------------------------------------------------------------------
+   2. ENTRADA DE PÁGINAS / VISTAS
+   Cada vez que se monta una vista principal, aparece con un suave ascenso.
+   -------------------------------------------------------------------------- */
+.crc-workspace,
+.ap-workspace,
+.ftv-workspace,
+.listado-fichas-workspace,
+.constancias-workspace,
+.cc-descargas-workspace,
+.sraa-form-workspace,
+.sraa-dynamic-content-body,
+.cc-content,
+.cc-main > *,
+.cards-container {
+  animation: sraa-slide-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Encabezados de sección con un matiz distinto */
+.crc-title-section,
+.ap-workspace > h1,
+.ftv-workspace > header,
+.sraa-title-section {
+  animation: sraa-slide-down 0.5s ease both;
+}
+
+/* Login: aparición con escala */
+.login-container,
+.sraa-login-full-page .login-card,
+.sraa-login-card {
+  animation: sraa-scale-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* --------------------------------------------------------------------------
+   3. TARJETAS · relieve al aparecer y al pasar el cursor
+   -------------------------------------------------------------------------- */
+.cc-panel-card,
+.crc-card,
+.ftv-card,
+.constancia-card,
+.resources-card,
+.activity-panel-card,
+.ap-tabla-card,
+.listado-tabla-card,
+.cc-calendar-card,
+.agenda-structure-card,
+.lower-requirements-card {
+  animation: sraa-slide-up 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.cc-panel-card:hover,
+.crc-card:hover,
+.ftv-card:hover,
+.resources-card:hover,
+.activity-panel-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 32px -12px rgba(11, 31, 75, 0.28);
+}
+
+/* --------------------------------------------------------------------------
+   4. TARJETAS DE MÉTRICAS / ACCESOS · entrada escalonada + elevación
+   -------------------------------------------------------------------------- */
+.cc-metric-card,
+.card-link,
+.constancia-card {
+  animation: sraa-pop-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.cc-metric-card:hover,
+.card-link:hover,
+.constancia-card:hover {
+  transform: translateY(-6px) scale(1.015);
+  box-shadow: 0 18px 38px -14px rgba(11, 31, 75, 0.3);
+}
+
+/* Retraso escalonado para que entren en cascada */
+.cc-metric-card:nth-child(1),
+.card-link:nth-child(1)  { animation-delay: 0.05s; }
+.cc-metric-card:nth-child(2),
+.card-link:nth-child(2)  { animation-delay: 0.12s; }
+.cc-metric-card:nth-child(3),
+.card-link:nth-child(3)  { animation-delay: 0.19s; }
+.cc-metric-card:nth-child(4),
+.card-link:nth-child(4)  { animation-delay: 0.26s; }
+.cc-metric-card:nth-child(5),
+.card-link:nth-child(5)  { animation-delay: 0.33s; }
+.cc-metric-card:nth-child(6),
+.card-link:nth-child(6)  { animation-delay: 0.40s; }
+
+/* Ícono de la tarjeta de acceso con leve flotación al pasar el cursor */
+.card-link:hover .card-icon {
+  animation: sraa-float 1.6s ease-in-out infinite;
+}
+
+/* --------------------------------------------------------------------------
+   5. BOTONES · rebote sutil, presión y brillo
+   -------------------------------------------------------------------------- */
+button,
+.crc-btn-generar,
+.crc-btn-visualizar,
+.cc-btn,
+.btn {
+  transition: transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.2s ease,
+              filter 0.2s ease,
+              background-color 0.2s ease;
+}
+
+button:hover:not(:disabled),
+.crc-btn-generar:hover,
+.crc-btn-visualizar:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.03);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(0) scale(0.97);
+}
+
+button:disabled {
+  transition: none;
+}
+
+/* --------------------------------------------------------------------------
+   6. CAMPOS DE FORMULARIO · foco suave
+   -------------------------------------------------------------------------- */
+input,
+select,
+textarea {
+  transition: border-color 0.2s ease, box-shadow 0.25s ease,
+              background-color 0.2s ease, transform 0.15s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  box-shadow: 0 0 0 3px rgba(11, 31, 75, 0.12);
+}
+
+/* --------------------------------------------------------------------------
+   7. CHIPS (destinatarios) · aparición con pop
+   -------------------------------------------------------------------------- */
+.crc-chip {
+  animation: sraa-pop-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.crc-chip:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px -8px rgba(11, 31, 75, 0.35);
+}
+.crc-chip-remove {
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+.crc-chip-remove:hover {
+  transform: scale(1.25) rotate(90deg);
+}
+
+/* --------------------------------------------------------------------------
+   8. FILAS DE TABLA · resaltado suave al pasar el cursor
+   -------------------------------------------------------------------------- */
+tbody tr {
+  transition: background-color 0.18s ease, transform 0.18s ease;
+}
+tbody tr:hover {
+  background-color: rgba(11, 31, 75, 0.04);
+}
+
+/* --------------------------------------------------------------------------
+   9. MENÚS DESPLEGABLES (badge de usuario) · despliegue animado
+   -------------------------------------------------------------------------- */
+.user-menu-dropdown,
+.cc-user-dropdown,
+.crc-chip-add {
+  animation: sraa-slide-down 0.22s ease both;
+}
+
+/* --------------------------------------------------------------------------
+   10. ALERTAS / MENSAJES · entrada llamativa
+   -------------------------------------------------------------------------- */
+.crc-alert,
+.sraa-alert,
+.alert {
+  animation: sraa-pop-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* --------------------------------------------------------------------------
+   11. PESTAÑAS / ETAPAS del stepper · transición
+   -------------------------------------------------------------------------- */
+.form-stepper-container .step,
+.sraa-step {
+  transition: color 0.25s ease, border-color 0.25s ease, background-color 0.25s ease;
+}
+
+/* --------------------------------------------------------------------------
+   12. UTILIDADES reutilizables (por si se quieren aplicar a mano)
+   -------------------------------------------------------------------------- */
+.sraa-anim-fade   { animation: sraa-fade-in 0.5s ease both; }
+.sraa-anim-up     { animation: sraa-slide-up 0.5s cubic-bezier(0.22,1,0.36,1) both; }
+.sraa-anim-pop    { animation: sraa-pop-in 0.45s cubic-bezier(0.22,1,0.36,1) both; }
+.sraa-anim-pulse  { animation: sraa-pulse 1.8s ease-in-out infinite; }
+.sraa-anim-float  { animation: sraa-float 3s ease-in-out infinite; }
+
+/* Spinner de carga reutilizable */
+.sraa-spinner {
+  width: 22px;
+  height: 22px;
+  border: 3px solid rgba(11, 31, 75, 0.15);
+  border-top-color: rgba(11, 31, 75, 0.85);
+  border-radius: 50%;
+  animation: sraa-spin 0.8s linear infinite;
+  display: inline-block;
+}
+
+/* Efecto "skeleton" de carga */
+.sraa-skeleton {
+  background: linear-gradient(90deg, #eceef3 25%, #f6f7fa 50%, #eceef3 75%);
+  background-size: 900px 100%;
+  animation: sraa-shimmer 1.4s linear infinite;
+  border-radius: 8px;
+}
+
+/* --------------------------------------------------------------------------
+   13. ACCESIBILIDAD · desactiva el movimiento si el usuario lo prefiere
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -5,7 +5,7 @@
 
 .listado-fichas-workspace {
   padding: 32px;
-  max-width: 1200px;
+  max-width: 1500px;
   margin: 0 auto;
   font-family: 'Segoe UI', Arial, sans-serif;
 }
@@ -108,8 +108,19 @@
 .tabla-fichas {
   width: 100%;
   border-collapse: collapse;
-  min-width: 900px;
+  /* Anchos fijos: la tabla ocupa el 100% sin desbordar (sin barra horizontal) */
+  table-layout: fixed;
 }
+
+/* Anchos de las 7 columnas (suman 100%)
+   N° 4% · Actividad 24% · Etapa1 11% · Etapa2 15% · Etapa3 15% · Fecha 12% · Acción 19% */
+.tabla-fichas th:nth-child(1) { width: 4%; }
+.tabla-fichas th:nth-child(2) { width: 24%; }
+.tabla-fichas th:nth-child(3) { width: 11%; }
+.tabla-fichas th:nth-child(4) { width: 15%; }
+.tabla-fichas th:nth-child(5) { width: 15%; }
+.tabla-fichas th:nth-child(6) { width: 12%; }
+.tabla-fichas th:nth-child(7) { width: 19%; }
 
 .tabla-fichas thead th {
   text-align: left;
@@ -118,18 +129,19 @@
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: #64748b;
-  padding: 16px 18px;
+  padding: 14px 14px;
   border-bottom: 2px solid #e2e8f0;
   background: #f8fafc;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .tabla-fichas tbody td {
-  padding: 18px;
+  padding: 16px 14px;
   border-bottom: 1px solid #eef2f7;
   vertical-align: top;
   font-size: 0.85rem;
   color: #334155;
+  word-break: break-word;
 }
 
 .tabla-fichas tbody tr:last-child td {
@@ -141,24 +153,13 @@
 }
 
 .col-num {
-  width: 48px;
   text-align: center !important;
   font-weight: 700;
   color: #94a3b8;
 }
 
-.col-actividad {
-  min-width: 260px;
-}
-
-.col-etapa2,
-.col-etapa3 {
-  min-width: 220px;
-}
-
-.col-accion {
-  width: 150px;
-}
+/* Los anchos los controla table-layout: fixed (reglas nth-child de arriba).
+   Se evitan min-width para que la tabla no desborde ni muestre barra. */
 
 /* ---------- CELDA: ACTIVIDAD ---------- */
 .actividad-nombre {
@@ -336,6 +337,18 @@
 
 .btn-descargar:hover {
   background: #15803d;
+}
+
+/* Eliminar: rojo de peligro */
+.btn-eliminar {
+  background: #fee2e2;
+  color: #b91c1c;
+  border-color: #fecaca;
+}
+
+.btn-eliminar:hover {
+  background: #dc2626;
+  color: #ffffff;
 }
 
 /* Descargar deshabilitado (en validación) */

@@ -1,52 +1,49 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './Constancias.css';
+import { obtenerConstancias } from '../services/constanciasService';
+import { generarConstanciaPDF } from '../utils/generarConstanciaPDF';
 
 /*
- * Datos de ejemplo. Si no se recibe la prop `constancias`, el componente
- * renderiza estos registros para poder visualizarse de inmediato.
+ * "Mis Constancias" del docente: repositorio de los reconocimientos que el
+ * coordinador le emitió desde "Crear Constancia". Se cargan del backend
+ * filtrando por el docente que inició sesión, y cada tarjeta descarga el
+ * PDF oficial (regenerado con los datos guardados).
  *
- * Estructura de cada constancia:
- * {
- *   id: number,
- *   titulo: string,
- *   descripcion?: string,   // opcional: detalle bajo el título
- *   fecha: string,          // fecha de emisión, ej: '15 de Octubre, 2026'
- *   rol: string             // rol del docente en el evento
- * }
+ * Estructura de cada constancia (backend):
+ * { id, titulo, tipo, rol, fecha, descripcion, destinatario, destinatario_id }
  */
-const CONSTANCIAS_EJEMPLO = [
-  {
-    id: 1,
-    titulo: 'Hackatón Come Datos',
-    descripcion: 'Participación Hackatón Come Datos 2025',
-    fecha: '15 de Octubre, 2026',
-    rol: 'Asesor de Equipo (Dataflow)',
-  },
-  {
-    id: 2,
-    titulo: 'Taller de mantenimiento',
-    descripcion: 'Taller de mantenimiento de dispositivos',
-    fecha: '20 de Junio, 2026',
-    rol: 'Maestro',
-  },
-  {
-    id: 3,
-    titulo: 'Laboratorio de Redes Cisco',
-    descripcion: 'Certificación en configuración de redes empresariales',
-    fecha: '08 de Marzo, 2026',
-    rol: 'Instructor Certificado',
-  },
-];
-
-const Constancias = ({ constancias = CONSTANCIAS_EJEMPLO, alDescargar = () => {} }) => {
+const Constancias = ({ usuario = null }) => {
+  const [constancias, setConstancias] = useState([]);
+  const [cargando, setCargando] = useState(true);
   const [busqueda, setBusqueda] = useState('');
   const [anio, setAnio] = useState('todos');
+
+  // Carga SOLO las constancias del docente actual (por id; si no, por nombre).
+  useEffect(() => {
+    // Sin usuario identificable no se muestra ninguna (nunca las de todos).
+    if (!usuario?.id && !usuario?.nombre) {
+      setConstancias([]);
+      setCargando(false);
+      return;
+    }
+    const filtros = usuario?.id
+      ? { destinatario_id: usuario.id }
+      : { destinatario: usuario.nombre };
+    setCargando(true);
+    obtenerConstancias(filtros)
+      .then(setConstancias)
+      .catch((error) => {
+        console.error('No se pudieron cargar las constancias:', error);
+        setConstancias([]);
+      })
+      .finally(() => setCargando(false));
+  }, [usuario]);
 
   // Años únicos, extraídos del final del texto de cada fecha (ej: "...2026").
   const anios = [
     ...new Set(
       constancias
-        .map((c) => (c.fecha.match(/\d{4}/) || [])[0])
+        .map((c) => (String(c.fecha || '').match(/\d{4}/) || [])[0])
         .filter(Boolean)
     ),
   ].sort().reverse();
@@ -56,11 +53,22 @@ const Constancias = ({ constancias = CONSTANCIAS_EJEMPLO, alDescargar = () => {}
     const texto = busqueda.trim().toLowerCase();
     const coincideTexto =
       texto === '' ||
-      c.titulo.toLowerCase().includes(texto) ||
+      (c.titulo || '').toLowerCase().includes(texto) ||
       (c.descripcion || '').toLowerCase().includes(texto);
-    const coincideAnio = anio === 'todos' || c.fecha.includes(anio);
+    const coincideAnio = anio === 'todos' || String(c.fecha || '').includes(anio);
     return coincideTexto && coincideAnio;
   });
+
+  // Descarga el PDF oficial regenerándolo con los datos guardados.
+  const descargar = (c) => {
+    generarConstanciaPDF({
+      tipo: c.tipo || 'Constancia',
+      evento: c.titulo || '',
+      fecha: c.fecha || '',
+      texto: c.descripcion || '',
+      destinatarios: [c.destinatario || usuario?.nombre || ''],
+    });
+  };
 
   return (
     <div className="constancias-workspace">
@@ -100,9 +108,11 @@ const Constancias = ({ constancias = CONSTANCIAS_EJEMPLO, alDescargar = () => {}
       </div>
 
       {/* REJILLA DE TARJETAS */}
-      {constanciasFiltradas.length === 0 ? (
+      {cargando ? (
+        <div className="constancias-vacio">Cargando tus constancias…</div>
+      ) : constanciasFiltradas.length === 0 ? (
         <div className="constancias-vacio">
-          No se encontraron constancias para el filtro seleccionado.
+          Aún no tienes constancias emitidas. Cuando la Coordinación te emita una, aparecerá aquí.
         </div>
       ) : (
         <div className="constancias-grid">
@@ -110,6 +120,9 @@ const Constancias = ({ constancias = CONSTANCIAS_EJEMPLO, alDescargar = () => {}
             <article className="constancia-card" key={constancia.id}>
               {/* Cabecera azul con el nombre del evento */}
               <header className="constancia-card-head">
+                {constancia.tipo && (
+                  <span className="constancia-tipo-badge">{constancia.tipo}</span>
+                )}
                 <h3>{constancia.titulo}</h3>
               </header>
 
@@ -123,15 +136,17 @@ const Constancias = ({ constancias = CONSTANCIAS_EJEMPLO, alDescargar = () => {}
                   <p>
                     <span className="meta-label">Emitida:</span> {constancia.fecha}
                   </p>
-                  <p>
-                    <span className="meta-label">Rol:</span> {constancia.rol}
-                  </p>
+                  {constancia.rol && (
+                    <p>
+                      <span className="meta-label">Rol:</span> {constancia.rol}
+                    </p>
+                  )}
                 </div>
 
                 <button
                   type="button"
                   className="btn-descargar-pdf"
-                  onClick={() => alDescargar(constancia.id)}
+                  onClick={() => descargar(constancia)}
                 >
                   ⬇ Descargar PDF
                 </button>

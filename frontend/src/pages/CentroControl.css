@@ -30,6 +30,12 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+.cc-brand-logo {
+  width: 160px;
+  height: auto;
+  display: block;
+}
+
 .cc-nav {
   display: flex;
   flex-direction: column;
@@ -111,6 +117,12 @@
   font-size: 1.3rem;
 }
 
+.cc-header-logo-img {
+  height: 40px;
+  width: auto;
+  display: block;
+}
+
 .cc-header-univ {
   font-size: 0.9rem;
   font-weight: 700;
@@ -124,6 +136,10 @@
   gap: 12px;
 }
 
+.cc-user-menu-wrap {
+  position: relative;
+}
+
 .cc-user-badge {
   display: flex;
   align-items: center;
@@ -132,6 +148,116 @@
   border: 1px solid #e2e8f0;
   border-radius: 999px;
   padding: 5px 14px 5px 5px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.cc-user-badge:hover {
+  background: #eef2f7;
+  border-color: #cbd5e1;
+}
+
+.cc-user-arrow.abierto {
+  transform: rotate(180deg);
+}
+
+/* ---- Menú desplegable del usuario ---- */
+.cc-user-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+}
+
+.cc-user-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 41;
+  width: 250px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+  padding: 8px;
+  overflow: hidden;
+}
+
+.cc-user-dropdown-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 10px 12px;
+  border-bottom: 1px solid #eef2f7;
+  margin-bottom: 6px;
+}
+
+.cc-user-dropdown-head > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.cc-user-dropdown-head strong {
+  font-size: 0.9rem;
+  color: #061e43;
+}
+
+.cc-user-dropdown-avatar {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #061e43;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.cc-user-dropdown-mail {
+  font-size: 0.75rem;
+  color: #64748b;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cc-user-dropdown-rol {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #3b82f6;
+  margin-top: 2px;
+}
+
+.cc-user-dropdown-item {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.cc-user-dropdown-item:hover {
+  background: #f1f5f9;
+}
+
+.cc-user-dropdown-salir {
+  color: #b91c1c;
+}
+
+.cc-user-dropdown-salir:hover {
+  background: #fee2e2;
 }
 
 .cc-logout-btn {
@@ -581,4 +707,62 @@
   .cc-content {
     padding: 16px;
   }
+}
+
+/* ============================================================
+   SECCIÓN: Descargar Informe de Evento
+   ============================================================ */
+.cc-descargas-workspace {
+  padding: 8px 4px;
+}
+
+.cc-descargas-sub {
+  color: #64748b;
+  font-size: 0.9rem;
+  margin-top: 4px;
+}
+
+.cc-btn-descarga {
+  background: #061e43;
+  color: #ffffff;
+  border: none;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  white-space: nowrap;
+}
+
+.cc-btn-descarga:hover {
+  background: #0a2c5f;
+}
+
+.cc-btn-descarga-off {
+  background: #e2e8f0;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.cc-btn-descarga-off:hover {
+  background: #e2e8f0;
+}
+
+/* Anchos propios de la tabla de descargas (8 columnas, suman 100%)
+   N° · Folio · Evento · Programa · Docente · Etapa3 · Fecha · Descarga */
+.ap-tabla.cc-tabla-descargas th:nth-child(1) { width: 3%; }
+.ap-tabla.cc-tabla-descargas th:nth-child(2) { width: 12%; }
+.ap-tabla.cc-tabla-descargas th:nth-child(3) { width: 19%; }
+.ap-tabla.cc-tabla-descargas th:nth-child(4) { width: 22%; }
+.ap-tabla.cc-tabla-descargas th:nth-child(5) { width: 14%; }
+.ap-tabla.cc-tabla-descargas th:nth-child(6) { width: 10%; }
+.ap-tabla.cc-tabla-descargas th:nth-child(7) { width: 8%; }
+.ap-tabla.cc-tabla-descargas th:nth-child(8) { width: 12%; }
+
+/* El botón de descarga se ajusta (puede ir en dos renglones) para no desbordar */
+.cc-tabla-descargas .cc-btn-descarga {
+  white-space: normal;
+  width: 100%;
+  padding: 8px 10px;
 }

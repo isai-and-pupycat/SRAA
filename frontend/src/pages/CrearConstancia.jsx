@@ -1,24 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './CrearConstancia.css';
-
-/*
- * Datos por defecto (reemplazables por props desde el backend).
- * - eventos: actividades YA validadas/concluidas, elegibles para constancia.
- * - docentes: usuarios del sistema que pueden ser destinatarios.
- */
-const EVENTOS_DEFAULT = [
-  { id: 1, nombre: 'Muestra académica ARTMOSFERA 2025' },
-  { id: 2, nombre: 'Conmemora UPB el Día de las Madres' },
-  { id: 3, nombre: 'Laboratorio de Redes Cisco' },
-];
-
-const DOCENTES_DEFAULT = [
-  { id: 1, nombre: 'Ing. Isai Rosas Canto' },
-  { id: 2, nombre: 'Mtr. Erick Koyoc Pech' },
-  { id: 3, nombre: 'Lic. Elena Zapata' },
-  { id: 4, nombre: 'Mtro. Fabián Johanan' },
-  { id: 5, nombre: 'Lic. Oscar Enrique' },
-];
+import { generarConstanciaPDF } from '../utils/generarConstanciaPDF';
+import { obtenerUsuarios } from '../services/usuariosService';
+import { crearConstancia } from '../services/constanciasService';
 
 // Iniciales para el avatar del chip, ignorando el título (Ing., Mtr., Lic.).
 const getIniciales = (nombre) => {
@@ -27,26 +11,52 @@ const getIniciales = (nombre) => {
 };
 
 const CrearConstancia = ({
-  eventos = EVENTOS_DEFAULT,
-  docentes = DOCENTES_DEFAULT,
+  emisor = '',
   alGenerar = () => {},
   alVisualizar = () => {},
 }) => {
   // Estado único con todos los campos del formulario
   const [form, setForm] = useState({
     evento: '',
-    tipoReconocimiento: 'Docente Responsable',
+    tipoReconocimiento: 'Constancia',
     fechaExpedicion: '2026-06-04',
+    paraProfesores: 'No',
+    invitados: '',
     textoPersonalizado:
       'Por su destacada labor como docente responsable en la muestra académica ARTMOSFERA 2025.',
   });
+  // Usuarios reales del sistema (destinatarios posibles de la constancia).
+  const [docentes, setDocentes] = useState([]);
   // Ids de los docentes seleccionados como destinatarios
-  const [destinatarios, setDestinatarios] = useState([1, 2]);
+  const [destinatarios, setDestinatarios] = useState([]);
   const [mensaje, setMensaje] = useState('');
+  const [enviando, setEnviando] = useState(false);
+
+  // Carga TODOS los usuarios aprobados (estatus activo), sin importar el rol.
+  useEffect(() => {
+    obtenerUsuarios()
+      .then((lista) => {
+        const activos = lista.filter((u) => u.estatus === 'activo');
+        setDocentes(activos.map((u) => ({ id: u.id, nombre: u.nombre })));
+      })
+      .catch(() => setDocentes([]));
+  }, []);
+
+  // Logo del documento: null = logo oficial de la UPB; dataURL = imagen subida.
+  const [logoPersonalizado, setLogoPersonalizado] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Carga una imagen elegida por el usuario y la guarda como dataURL.
+  const handleLogoChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => setLogoPersonalizado(reader.result);
+    reader.readAsDataURL(file);
   };
 
   // Docentes ya seleccionados (objetos completos) y los aún disponibles
@@ -63,31 +73,82 @@ const CrearConstancia = ({
     setDestinatarios((prev) => prev.filter((d) => d !== id));
   };
 
-  const handleGenerar = (e) => {
+  // Invitados/visitantes externos: se separan por coma o por salto de línea.
+  const invitados = form.invitados
+    .split(/[\n,]+/)
+    .map((n) => n.trim())
+    .filter(Boolean);
+
+  // Todos los que reciben documento: docentes del sistema + invitados externos.
+  const todosDestinatarios = [...seleccionados.map((d) => d.nombre), ...invitados];
+
+  // Arma los datos que necesita el generador del PDF (nombres de los destinatarios).
+  const construirDatosPDF = () => ({
+    tipo: form.tipoReconocimiento,
+    evento: form.evento.trim(),
+    fecha: form.fechaExpedicion,
+    texto: form.textoPersonalizado,
+    destinatarios: todosDestinatarios,
+    logo: logoPersonalizado, // null = usa el logo oficial de la UPB
+  });
+
+  const handleGenerar = async (e) => {
     e.preventDefault();
     setMensaje('');
 
     // Validaciones mínimas antes de "enviar"
-    if (!form.evento) {
-      setMensaje('⚠️ Selecciona una actividad autorizada.');
+    if (!form.evento.trim()) {
+      setMensaje('⚠️ Escribe el nombre de la actividad o evento.');
       return;
     }
-    if (destinatarios.length === 0) {
-      setMensaje('⚠️ Selecciona al menos un docente destinatario.');
+    if (todosDestinatarios.length === 0) {
+      setMensaje('⚠️ Agrega al menos un docente o invitado destinatario.');
       return;
     }
 
-    const payload = { ...form, destinatarios };
-    // Simulación del envío (aquí conectarás tu API real)
-    console.log('Generando y enviando constancia al portal:', payload);
-    alGenerar(payload);
-    setMensaje(
-      `✅ Constancia generada y enviada a ${destinatarios.length} docente(s). Se adjuntó a su apartado "Mis Constancias".`
-    );
+    const tituloEvento = form.evento.trim();
+
+    setEnviando(true);
+    generarConstanciaPDF(construirDatosPDF()); // descarga el PDF (una página por destinatario)
+
+    // Guarda una constancia por docente (aparece en su "Mis Constancias") y una
+    // por invitado externo (queda en el registro de constancias emitidas).
+    const comun = {
+      titulo: tituloEvento,
+      tipo: form.tipoReconocimiento,
+      fecha: form.fechaExpedicion,
+      descripcion: form.textoPersonalizado,
+      para_profesores: form.paraProfesores,
+      emitida_por: emisor,
+    };
+    try {
+      await Promise.all([
+        ...seleccionados.map((d) =>
+          crearConstancia({ ...comun, destinatario: d.nombre, destinatario_id: d.id, es_invitado: false })
+        ),
+        ...invitados.map((nombre) =>
+          crearConstancia({ ...comun, destinatario: nombre, destinatario_id: null, es_invitado: true })
+        ),
+      ]);
+      setMensaje(
+        `✅ ${form.tipoReconocimiento} emitida para ${todosDestinatarios.length} destinatario(s). Los docentes ya la ven en su "Mis Constancias" y se descargó el PDF oficial.`
+      );
+      alGenerar({ ...form, destinatarios });
+    } catch {
+      setMensaje(
+        '⚠️ Se generó el PDF, pero no se pudo guardar en el portal. Revisa que el backend esté encendido.'
+      );
+    } finally {
+      setEnviando(false);
+    }
   };
 
   const handleVisualizar = () => {
-    console.log('Vista previa de la constancia:', { ...form, destinatarios });
+    if (!form.evento.trim() || todosDestinatarios.length === 0) {
+      setMensaje('⚠️ Escribe una actividad y agrega al menos un destinatario para visualizar.');
+      return;
+    }
+    generarConstanciaPDF(construirDatosPDF(), { preview: true }); // vista previa en pestaña nueva
     alVisualizar({ ...form, destinatarios });
   };
 
@@ -114,33 +175,68 @@ const CrearConstancia = ({
         {/* Evento / Actividad Autorizada */}
         <div className="crc-field">
           <label htmlFor="crc-evento">Evento / Actividad Autorizada</label>
-          <select
+          <input
             id="crc-evento"
+            type="text"
             name="evento"
             value={form.evento}
             onChange={handleChange}
-          >
-            <option value="">Seleccione una actividad concluida...</option>
-            {eventos.map((ev) => (
-              <option key={ev.id} value={ev.id}>
-                {ev.nombre}
-              </option>
-            ))}
-          </select>
+            placeholder="Escribe el nombre del evento o actividad..."
+          />
+        </div>
+
+        {/* Logo del documento */}
+        <div className="crc-field">
+          <label>Logo del documento</label>
+          <div className="crc-logo-row">
+            <div className="crc-logo-preview">
+              <img
+                src={logoPersonalizado || '/img/logo-vertical-blanco@2x.png'}
+                alt="Vista previa del logo"
+              />
+            </div>
+            <div className="crc-logo-actions">
+              <label className="crc-btn-logo">
+                📁 Subir imagen
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleLogoChange}
+                  style={{ display: 'none' }}
+                />
+              </label>
+              {logoPersonalizado && (
+                <button
+                  type="button"
+                  className="crc-btn-logo-reset"
+                  onClick={() => setLogoPersonalizado(null)}
+                >
+                  Usar logo de la UPB
+                </button>
+              )}
+            </div>
+          </div>
+          <span className="crc-hint">
+            {logoPersonalizado
+              ? 'Se usará la imagen que subiste. Puedes volver al logo oficial cuando quieras.'
+              : 'Se usará el logo oficial de la UPB. Sube una imagen para reemplazarlo.'}
+          </span>
         </div>
 
         {/* Tipo de Reconocimiento + Fecha de Expedición */}
         <div className="crc-row-2">
           <div className="crc-field">
             <label htmlFor="crc-tipo">Tipo de Reconocimiento</label>
-            <input
+            <select
               id="crc-tipo"
-              type="text"
               name="tipoReconocimiento"
               value={form.tipoReconocimiento}
               onChange={handleChange}
-              placeholder="Ej. Docente Responsable"
-            />
+            >
+              <option value="Constancia">Constancia</option>
+              <option value="Reconocimiento">Reconocimiento</option>
+              <option value="Diploma">Diploma</option>
+            </select>
           </div>
           <div className="crc-field">
             <label htmlFor="crc-fecha">Fecha de Expedición</label>
@@ -151,6 +247,49 @@ const CrearConstancia = ({
               value={form.fechaExpedicion}
               onChange={handleChange}
             />
+          </div>
+        </div>
+
+        {/* ¿Es para profesores? + Invitados especiales */}
+        <div className="crc-row-2">
+          <div className="crc-field">
+            <label htmlFor="crc-profesores">¿Es para profesores?</label>
+            <select
+              id="crc-profesores"
+              name="paraProfesores"
+              value={form.paraProfesores}
+              onChange={(e) => {
+                const value = e.target.value;
+                // Si es para profesores, no aplican invitados externos: se limpia.
+                setForm((prev) => ({
+                  ...prev,
+                  paraProfesores: value,
+                  invitados: value === 'Sí' ? '' : prev.invitados,
+                }));
+              }}
+            >
+              <option value="No">No</option>
+              <option value="Sí">Sí</option>
+            </select>
+          </div>
+          <div className="crc-field">
+            <label htmlFor="crc-invitados">Visitantes o invitados especiales</label>
+            <input
+              id="crc-invitados"
+              type="text"
+              name="invitados"
+              value={form.invitados}
+              onChange={handleChange}
+              disabled={form.paraProfesores === 'Sí'}
+              placeholder={
+                form.paraProfesores === 'Sí'
+                  ? 'No aplica: la constancia es para profesores'
+                  : 'Nombres separados por coma...'
+              }
+            />
+            <span className="crc-hint">
+              Externos que no están en el sistema. Cada uno recibe su propio documento.
+            </span>
           </div>
         </div>
 
@@ -202,8 +341,8 @@ const CrearConstancia = ({
         </div>
 
         {/* Botón principal */}
-        <button type="submit" className="crc-btn-generar">
-          Generar y Enviar al Portal
+        <button type="submit" className="crc-btn-generar" disabled={enviando}>
+          {enviando ? 'Enviando…' : 'Enviar'}
         </button>
       </form>
     </div>

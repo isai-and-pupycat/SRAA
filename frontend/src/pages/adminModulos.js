@@ -9,29 +9,31 @@
  * en producción se cargarían desde su propia tabla.
  */
 /*
- * "Mis Constancias" del coordinador: misma mecánica de tabla + modal que los
- * módulos de administración, pero para consultar y editar sus constancias.
+ * "Constancias Emitidas" del coordinador: registro de todas las constancias
+ * generadas. Se alimenta automáticamente desde "Crear Constancia" y también
+ * permite dar de alta una manualmente. Misma mecánica de tabla + modal.
  */
 export const CONFIG_CONSTANCIAS = {
-  titulo: 'Mis Constancias',
-  subtitulo: 'Consulta y edita las constancias emitidas a tu nombre.',
+  titulo: 'Constancias Emitidas',
+  subtitulo: 'Registro de todas las constancias generadas para los docentes.',
   singular: 'Constancia',
   columnas: [
     { clave: 'titulo', etiqueta: 'Evento / Reconocimiento' },
-    { clave: 'rol', etiqueta: 'Rol' },
+    { clave: 'tipo', etiqueta: 'Tipo' },
+    { clave: 'destinatario', etiqueta: 'Destinatario' },
+    { clave: 'para_profesores', etiqueta: 'Profesores' },
     { clave: 'fecha', etiqueta: 'Fecha de Emisión' },
   ],
   campos: [
     { clave: 'titulo', etiqueta: 'Evento / Reconocimiento', tipo: 'text', requerido: true, placeholder: 'Ej. Hackatón Come Datos' },
-    { clave: 'rol', etiqueta: 'Rol desempeñado', tipo: 'text', requerido: true, placeholder: 'Ej. Asesor de Equipo' },
+    { clave: 'tipo', etiqueta: 'Tipo', tipo: 'select', requerido: true, opciones: ['Constancia', 'Reconocimiento', 'Diploma'] },
+    { clave: 'destinatario', etiqueta: 'Docente destinatario', tipo: 'text', requerido: true, placeholder: 'Ej. Ing. Isai Rosas Canto' },
+    { clave: 'para_profesores', etiqueta: '¿Es para profesores?', tipo: 'select', requerido: false, opciones: ['No', 'Sí'] },
+    { clave: 'rol', etiqueta: 'Rol desempeñado', tipo: 'text', requerido: false, placeholder: 'Ej. Asesor de Equipo' },
     { clave: 'fecha', etiqueta: 'Fecha de emisión', tipo: 'date', requerido: true },
     { clave: 'descripcion', etiqueta: 'Descripción', tipo: 'text', requerido: false, placeholder: 'Detalle del reconocimiento' },
   ],
-  datos: [
-    { id: 1, titulo: 'Hackatón Come Datos', rol: 'Asesor de Equipo (Dataflow)', fecha: '2026-10-15', descripcion: 'Participación Hackatón Come Datos 2025' },
-    { id: 2, titulo: 'Taller de mantenimiento', rol: 'Maestro', fecha: '2026-06-20', descripcion: 'Taller de mantenimiento de dispositivos' },
-    { id: 3, titulo: 'Laboratorio de Redes Cisco', rol: 'Instructor Certificado', fecha: '2026-03-08', descripcion: 'Certificación en configuración de redes' },
-  ],
+  datos: [],
 };
 
 export const MODULOS_ADMIN = {
@@ -51,10 +53,7 @@ export const MODULOS_ADMIN = {
       { clave: 'fin', etiqueta: 'Fecha de fin', tipo: 'date', requerido: true },
       { clave: 'estado', etiqueta: 'Estado', tipo: 'select', opciones: ['Activo', 'Inactivo'], requerido: true },
     ],
-    datos: [
-      { id: 1, nombre: '2024-2025', inicio: '2024-09-01', fin: '2025-08-31', estado: 'Inactivo' },
-      { id: 2, nombre: '2025-2026', inicio: '2025-09-01', fin: '2026-08-31', estado: 'Activo' },
-    ],
+    datos: [],
   },
 
   carreras: {
@@ -73,11 +72,7 @@ export const MODULOS_ADMIN = {
       { clave: 'coordinador', etiqueta: 'Coordinador', tipo: 'text', requerido: true },
       { clave: 'estado', etiqueta: 'Estado', tipo: 'select', opciones: ['Activo', 'Inactivo'], requerido: true },
     ],
-    datos: [
-      { id: 1, nombre: 'Ingeniería en TI e Innovación Digital', clave: 'ITIID', coordinador: 'Mtro. Fabián Johanan', estado: 'Activo' },
-      { id: 2, nombre: 'Licenciatura en Nutrición', clave: 'LN', coordinador: 'Lic. Elena Zapata', estado: 'Activo' },
-      { id: 3, nombre: 'Lic. en Gestión y Desarrollo Turístico', clave: 'LGDT', coordinador: 'Lic. Oscar Enrique', estado: 'Inactivo' },
-    ],
+    datos: [],
   },
 
   asignaturas: {
@@ -93,13 +88,10 @@ export const MODULOS_ADMIN = {
     campos: [
       { clave: 'nombre', etiqueta: 'Nombre de la asignatura', tipo: 'text', requerido: true, placeholder: 'Ej. Programación Web' },
       { clave: 'clave', etiqueta: 'Clave', tipo: 'text', requerido: true, placeholder: 'Ej. PW-601' },
-      { clave: 'carrera', etiqueta: 'Carrera', tipo: 'select', opciones: ['ITIID', 'Nutrición', 'Turismo'], requerido: true },
+      { clave: 'carrera', etiqueta: 'Carrera', tipo: 'select', opcionesDe: 'carreras', requerido: true },
       { clave: 'cuatrimestre', etiqueta: 'Cuatrimestre', tipo: 'number', requerido: true, placeholder: '1 a 10' },
     ],
-    datos: [
-      { id: 1, nombre: 'Programación Web', clave: 'PW-601', carrera: 'ITIID', cuatrimestre: 6 },
-      { id: 2, nombre: 'Nutrición Comunitaria', clave: 'NC-402', carrera: 'Nutrición', cuatrimestre: 4 },
-    ],
+    datos: [],
   },
 
   usuarios: {
@@ -110,18 +102,17 @@ export const MODULOS_ADMIN = {
       { clave: 'nombre', etiqueta: 'Nombre' },
       { clave: 'correo', etiqueta: 'Correo' },
       { clave: 'rol', etiqueta: 'Rol', tipo: 'rol' },
-      { clave: 'estado', etiqueta: 'Estado', tipo: 'estado' },
+      { clave: 'estatus', etiqueta: 'Estado', tipo: 'estado' },
     ],
     campos: [
       { clave: 'nombre', etiqueta: 'Nombre completo', tipo: 'text', requerido: true },
       { clave: 'correo', etiqueta: 'Correo institucional', tipo: 'email', requerido: true, placeholder: 'nombre.apellido@upb.edu.mx' },
       { clave: 'rol', etiqueta: 'Rol', tipo: 'select', opciones: ['docente', 'coordinador', 'administrador'], requerido: true },
-      { clave: 'estado', etiqueta: 'Estado', tipo: 'select', opciones: ['Activo', 'Inactivo'], requerido: true },
+      { clave: 'estatus', etiqueta: 'Estado', tipo: 'select', opciones: ['activo', 'pendiente', 'inactivo'], requerido: true },
+      { clave: 'programa', etiqueta: 'Programa educativo', tipo: 'select', opcionesDe: 'carreras', requerido: false },
+      { clave: 'contrasena', etiqueta: 'Contraseña', tipo: 'password', requerido: false, placeholder: 'Dejar en blanco para no cambiarla' },
     ],
-    datos: [
-      { id: 1, nombre: 'Ing. Isai Rosas Canto', correo: 'isai.rosas@upb.edu.mx', rol: 'docente', estado: 'Activo' },
-      { id: 2, nombre: 'Mtr. Julio Cen', correo: 'julio.cen@upb.edu.mx', rol: 'coordinador', estado: 'Activo' },
-    ],
+    datos: [],
   },
 
   cuatrimestres: {
@@ -137,12 +128,9 @@ export const MODULOS_ADMIN = {
     campos: [
       { clave: 'nombre', etiqueta: 'Nombre del periodo', tipo: 'text', requerido: true, placeholder: 'Ej. Mayo - Agosto 2026' },
       { clave: 'numero', etiqueta: 'Número', tipo: 'number', requerido: true, placeholder: '1, 2 o 3' },
-      { clave: 'ciclo', etiqueta: 'Ciclo', tipo: 'select', opciones: ['2024-2025', '2025-2026'], requerido: true },
+      { clave: 'ciclo', etiqueta: 'Ciclo', tipo: 'select', opcionesDe: 'ciclos', requerido: true },
       { clave: 'estado', etiqueta: 'Estado', tipo: 'select', opciones: ['Activo', 'Inactivo'], requerido: true },
     ],
-    datos: [
-      { id: 1, nombre: 'Enero - Abril 2026', numero: 1, ciclo: '2025-2026', estado: 'Inactivo' },
-      { id: 2, nombre: 'Mayo - Agosto 2026', numero: 2, ciclo: '2025-2026', estado: 'Activo' },
-    ],
+    datos: [],
   },
 };

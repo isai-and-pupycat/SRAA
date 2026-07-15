@@ -47,6 +47,17 @@
 }
 
 /* Iconos de acción (reutilizan .ap-icon-btn como base) */
+.adm-icon-descargar {
+  background: #dcfce7;
+  color: #15803d;
+  border-color: #bbf7d0;
+}
+
+.adm-icon-descargar:hover {
+  background: #16a34a;
+  color: #ffffff;
+}
+
 .adm-icon-editar {
   background: #fef3c7;
   color: #b45309;
@@ -76,57 +87,77 @@
 }
 
 /* ============================================================
-   MODAL
+   MODAL  (rediseñado — usado en todos los módulos de Administración)
    ============================================================ */
+@keyframes adm-backdrop-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes adm-modal-in {
+  from { opacity: 0; transform: translate(-50%, -46%) scale(0.96); }
+  to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
 .adm-modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.45);
-  z-index: 50;
+  background: rgba(6, 20, 45, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 1000;
+  animation: adm-backdrop-in 0.2s ease both;
 }
 
 .adm-modal {
   position: fixed;
-  z-index: 51;
+  z-index: 1001;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: min(480px, calc(100vw - 40px));
+  width: min(500px, calc(100vw - 40px));
   max-height: 90vh;
   overflow-y: auto;
   background: #ffffff;
-  border-radius: 14px;
-  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.3);
+  border-radius: 16px;
+  box-shadow: 0 24px 60px -12px rgba(6, 20, 45, 0.45);
+  animation: adm-modal-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+/* Encabezado con banda azul institucional */
 .adm-modal-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 20px 24px;
-  border-bottom: 1px solid #e2e8f0;
+  background: linear-gradient(135deg, #061e43 0%, #0a3a7a 100%);
 }
 
 .adm-modal-head h3 {
   font-size: 1.15rem;
   font-weight: 700;
-  color: #061e43;
+  color: #ffffff;
+  letter-spacing: 0.2px;
 }
 
 .adm-modal-close {
-  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: rgba(255, 255, 255, 0.12);
   border: none;
-  font-size: 1rem;
-  color: #94a3b8;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.85);
   cursor: pointer;
-  padding: 4px;
-  border-radius: 6px;
-  transition: color 0.15s ease, background 0.15s ease;
+  border-radius: 8px;
+  transition: color 0.15s ease, background 0.15s ease, transform 0.15s ease;
 }
 
 .adm-modal-close:hover {
-  color: #dc2626;
-  background: #fee2e2;
+  color: #ffffff;
+  background: rgba(239, 68, 68, 0.85);
+  transform: rotate(90deg);
 }
 
 /* ============================================================
@@ -136,19 +167,21 @@
   padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
 }
 
 .adm-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 7px;
 }
 
 .adm-field label {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 700;
   color: #334155;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
 }
 
 .adm-req {
@@ -158,21 +191,27 @@
 
 .adm-field input,
 .adm-field select {
-  padding: 10px 12px;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
+  padding: 11px 13px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
   font-size: 0.9rem;
   color: #1e293b;
-  background: #ffffff;
+  background: #f8fafc;
   font-family: inherit;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.adm-field input:hover,
+.adm-field select:hover {
+  border-color: #cbd5e1;
 }
 
 .adm-field input:focus,
 .adm-field select:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  border-color: #0a3a7a;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(10, 58, 122, 0.14);
 }
 
 .adm-error {
@@ -185,37 +224,44 @@
   display: flex;
   justify-content: flex-end;
   gap: 10px;
-  margin-top: 8px;
+  margin-top: 6px;
+  padding-top: 18px;
+  border-top: 1px solid #eef2f7;
 }
 
 .adm-btn-cancelar {
   background: #ffffff;
-  border: 1px solid #cbd5e1;
+  border: 1.5px solid #e2e8f0;
   color: #475569;
-  padding: 10px 18px;
-  border-radius: 8px;
+  padding: 11px 20px;
+  border-radius: 10px;
   font-weight: 700;
   font-size: 0.85rem;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
 }
 
 .adm-btn-cancelar:hover {
   background: #f1f5f9;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
 }
 
 .adm-btn-guardar {
-  background: #16a34a;
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
   border: none;
   color: #ffffff;
-  padding: 10px 20px;
-  border-radius: 8px;
+  padding: 11px 24px;
+  border-radius: 10px;
   font-weight: 700;
   font-size: 0.85rem;
   cursor: pointer;
-  transition: background 0.15s ease;
+  box-shadow: 0 6px 16px -6px rgba(22, 163, 74, 0.6);
+  transition: filter 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .adm-btn-guardar:hover {
-  background: #15803d;
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px -8px rgba(22, 163, 74, 0.7);
 }

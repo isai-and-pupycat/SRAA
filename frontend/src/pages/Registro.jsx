@@ -113,7 +113,7 @@ const Registro = ({ alRegistrar = () => {}, alIrALogin = () => {} }) => {
           </div>
 
           <button type="submit" className="btn-registro-submit">
-            Inicia sesion
+            Registrarse
           </button>
         </form>
 

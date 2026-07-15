@@ -110,6 +110,76 @@
   color: #94a3b8;
 }
 
+/* Campo desactivado (ej. invitados cuando la constancia es para profesores) */
+.crc-field input:disabled {
+  background: #f1f5f9;
+  color: #94a3b8;
+  cursor: not-allowed;
+  border-color: #e2e8f0;
+}
+
+/* ---------- SELECTOR DE LOGO ---------- */
+.crc-logo-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.crc-logo-preview {
+  width: 84px;
+  height: 84px;
+  flex-shrink: 0;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #061e43; /* fondo azul como en el PDF */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 8px;
+}
+
+.crc-logo-preview img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.crc-logo-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.crc-btn-logo {
+  display: inline-block;
+  padding: 9px 16px;
+  background: #061e43;
+  color: #ffffff;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.15s ease;
+}
+.crc-btn-logo:hover {
+  background: #0a2a5e;
+}
+
+.crc-btn-logo-reset {
+  padding: 8px 16px;
+  background: transparent;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+.crc-btn-logo-reset:hover {
+  background: #f1f5f9;
+}
+
 .crc-field input:focus,
 .crc-field select:focus,
 .crc-field textarea:focus {

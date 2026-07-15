@@ -1,37 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './AprobacionEventos.css'; // estilo de tabla (consistencia)
 import './AdminCrud.css'; // estilo de modal + formulario
 import './AprobacionProfesores.css';
-
-const PROGRAMAS = [
-  'Ingeniería en IT e Innovación Digital',
-  'Licenciatura en Nutrición',
-  'Lic. en Gestión y Desarrollo Turístico',
-  'Tronco Común',
-];
-
-/*
- * Docentes de ejemplo. estatus: 'pendiente' | 'activo' | 'inactivo'.
- * En producción llegan por la prop `datosProfesores` desde el backend.
- */
-const PROFESORES_DEFAULT = [
-  { id: 1, nombre: 'Dr. Isai Rosas Canto', correo: 'isai.rosas@upb.edu.mx', programa: 'Ingeniería en IT e Innovación Digital', fechaRegistro: '22/06/2026', estatus: 'pendiente' },
-  { id: 2, nombre: 'Lic. Elena Zapata López', correo: 'elena.zapata@upb.edu.mx', programa: 'Licenciatura en Nutrición', fechaRegistro: '20/06/2026', estatus: 'pendiente' },
-  { id: 3, nombre: 'Mtro. Fabián Johanan', correo: 'fabian.johanan@upb.edu.mx', programa: 'Lic. en Gestión y Desarrollo Turístico', fechaRegistro: '12/01/2025', estatus: 'activo' },
-  { id: 4, nombre: 'Ing. Erick Oscar Rosas', correo: 'erick.oscar@upb.edu.mx', programa: 'Ingeniería en IT e Innovación Digital', fechaRegistro: '14/03/2025', estatus: 'activo' },
-];
+import {
+  obtenerUsuarios,
+  crearUsuario,
+  actualizarUsuario,
+  cambiarEstatusUsuario,
+} from '../services/usuariosService';
+import { obtenerCatalogo } from '../services/catalogosService';
 
 const getIniciales = (nombre) => {
-  const partes = nombre.split(' ').filter((p) => !p.endsWith('.'));
+  const partes = (nombre || '?').split(' ').filter((p) => !p.endsWith('.'));
   return partes.slice(0, 2).map((p) => p[0]).join('').toUpperCase();
-};
-
-// Fecha de hoy en formato dd/mm/aaaa para los registros nuevos.
-const fechaHoy = () => {
-  const d = new Date();
-  const dd = String(d.getDate()).padStart(2, '0');
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
-  return `${dd}/${mm}/${d.getFullYear()}`;
 };
 
 /* -------- Badge de estatus reutilizable -------- */
@@ -45,22 +26,38 @@ const EstatusBadge = ({ estatus }) => {
   return <span className="apr-badge apr-badge-pendiente">⏱ Pendiente por Aprobar</span>;
 };
 
-const AprobacionProfesores = ({ datosProfesores = PROFESORES_DEFAULT }) => {
-  const [profesores, setProfesores] = useState(datosProfesores);
+const AprobacionProfesores = () => {
+  const [profesores, setProfesores] = useState([]);
   const [busqueda, setBusqueda] = useState('');
-  const [modalAbierto, setModalAbierto] = useState(false);
-  const [form, setForm] = useState({ nombre: '', correo: '', programa: '' });
+  const [modal, setModal] = useState(null); // null | { modo: 'crear' | 'editar', id? }
+  const [form, setForm] = useState({ nombre: '', correo: '', programa: '', contrasena: '' });
   const [errores, setErrores] = useState({});
+  const [programas, setProgramas] = useState([]);
 
-  /*
-   * Simula una petición a la API para cambiar el estatus de un docente.
-   * Al aprobar, el registro pasa a 'activo' y sus botones cambian solos.
-   */
-  const cambiarEstatus = (id, nuevoEstatus) => {
-    console.log(`API → cambiar estatus del docente ${id} a "${nuevoEstatus}"`);
-    setProfesores((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, estatus: nuevoEstatus } : p))
-    );
+  // Carga los docentes desde el backend (tabla usuarios, rol docente).
+  const cargar = () => {
+    obtenerUsuarios('docente')
+      .then(setProfesores)
+      .catch((error) => console.error('No se pudieron cargar los profesores:', error));
+  };
+
+  useEffect(() => {
+    cargar();
+    // Programas educativos desde el catálogo de Carreras.
+    obtenerCatalogo('carreras')
+      .then((cs) => setProgramas(cs.filter((c) => c.estado !== 'Inactivo').map((c) => c.nombre)))
+      .catch(() => setProgramas([]));
+  }, []);
+
+  // Cambia el estatus de un docente en el backend (aprobar / baja / reactivar).
+  const cambiarEstatus = async (id, nuevoEstatus) => {
+    try {
+      const actualizado = await cambiarEstatusUsuario(id, nuevoEstatus);
+      setProfesores((prev) => prev.map((p) => (p.id === id ? actualizado : p)));
+    } catch (error) {
+      console.error('Error al cambiar estatus:', error);
+      window.alert('No se pudo actualizar. Revisa que el backend esté encendido.');
+    }
   };
 
   const darDeBaja = (prof) => {
@@ -74,24 +71,32 @@ const AprobacionProfesores = ({ datosProfesores = PROFESORES_DEFAULT }) => {
   const profesoresFiltrados = profesores.filter(
     (p) =>
       texto === '' ||
-      p.nombre.toLowerCase().includes(texto) ||
-      p.correo.toLowerCase().includes(texto) ||
-      p.programa.toLowerCase().includes(texto)
+      (p.nombre || '').toLowerCase().includes(texto) ||
+      (p.correo || '').toLowerCase().includes(texto) ||
+      (p.programa || '').toLowerCase().includes(texto)
   );
 
-  /* ---- Registro manual ---- */
-  const abrirModal = () => {
-    setForm({ nombre: '', correo: '', programa: '' });
+  /* ---- Alta / edición ---- */
+  const abrirCrear = () => {
+    setForm({ nombre: '', correo: '', programa: '', contrasena: '' });
     setErrores({});
-    setModalAbierto(true);
+    setModal({ modo: 'crear' });
   };
+
+  const abrirEditar = (prof) => {
+    setForm({ nombre: prof.nombre, correo: prof.correo, programa: prof.programa || '', contrasena: '' });
+    setErrores({});
+    setModal({ modo: 'editar', id: prof.id });
+  };
+
+  const cerrarModal = () => setModal(null);
 
   const cambiarCampo = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const registrarProfesor = (e) => {
+  const registrarProfesor = async (e) => {
     e.preventDefault();
     const errs = {};
     if (!form.nombre.trim()) errs.nombre = 'El nombre es obligatorio.';
@@ -99,19 +104,40 @@ const AprobacionProfesores = ({ datosProfesores = PROFESORES_DEFAULT }) => {
     else if (!/^[^\s@]+@upb\.edu\.mx$/i.test(form.correo.trim()))
       errs.correo = 'Debe ser un correo institucional (@upb.edu.mx).';
     if (!form.programa) errs.programa = 'Selecciona un programa educativo.';
+    if (modal.modo === 'crear' && !form.contrasena.trim())
+      errs.contrasena = 'Define una contraseña inicial.';
 
     if (Object.keys(errs).length > 0) {
       setErrores(errs);
       return;
     }
 
-    const nuevoId = profesores.length ? Math.max(...profesores.map((p) => p.id)) + 1 : 1;
-    // Los registros nuevos entran como 'pendiente': deben ser aprobados.
-    setProfesores((prev) => [
-      ...prev,
-      { id: nuevoId, ...form, fechaRegistro: fechaHoy(), estatus: 'pendiente' },
-    ]);
-    setModalAbierto(false);
+    try {
+      if (modal.modo === 'crear') {
+        // Alta por el coordinador: entra como docente ACTIVO (listo para usar).
+        const creado = await crearUsuario({
+          nombre: form.nombre,
+          correo: form.correo,
+          contrasena: form.contrasena,
+          rol: 'docente',
+          estatus: 'activo',
+          programa: form.programa,
+        });
+        setProfesores((prev) => [...prev, creado]);
+      } else {
+        const actualizado = await actualizarUsuario(modal.id, {
+          nombre: form.nombre,
+          correo: form.correo,
+          programa: form.programa,
+          ...(form.contrasena.trim() ? { contrasena: form.contrasena } : {}),
+        });
+        setProfesores((prev) => prev.map((p) => (p.id === modal.id ? actualizado : p)));
+      }
+      cerrarModal();
+    } catch (error) {
+      const msg = error?.response?.data?.message || 'No se pudo guardar. Revisa el backend.';
+      setErrores({ correo: msg });
+    }
   };
 
   return (
@@ -132,7 +158,7 @@ const AprobacionProfesores = ({ datosProfesores = PROFESORES_DEFAULT }) => {
             onChange={(e) => setBusqueda(e.target.value)}
           />
         </div>
-        <button type="button" className="apr-btn-registrar" onClick={abrirModal}>
+        <button type="button" className="apr-btn-registrar" onClick={abrirCrear}>
           👤 + Registrar Profesor
         </button>
       </div>
@@ -191,7 +217,11 @@ const AprobacionProfesores = ({ datosProfesores = PROFESORES_DEFAULT }) => {
                           >
                             ✓ Aprobar
                           </button>
-                          <button type="button" className="apr-btn apr-btn-editar">
+                          <button
+                            type="button"
+                            className="apr-btn apr-btn-editar"
+                            onClick={() => abrirEditar(prof)}
+                          >
                             ✎ Editar
                           </button>
                         </>
@@ -199,7 +229,11 @@ const AprobacionProfesores = ({ datosProfesores = PROFESORES_DEFAULT }) => {
 
                       {prof.estatus === 'activo' && (
                         <>
-                          <button type="button" className="apr-btn apr-btn-editar">
+                          <button
+                            type="button"
+                            className="apr-btn apr-btn-editar"
+                            onClick={() => abrirEditar(prof)}
+                          >
                             ✎ Editar
                           </button>
                           <button
@@ -214,7 +248,11 @@ const AprobacionProfesores = ({ datosProfesores = PROFESORES_DEFAULT }) => {
 
                       {prof.estatus === 'inactivo' && (
                         <>
-                          <button type="button" className="apr-btn apr-btn-editar">
+                          <button
+                            type="button"
+                            className="apr-btn apr-btn-editar"
+                            onClick={() => abrirEditar(prof)}
+                          >
                             ✎ Editar
                           </button>
                           <button
@@ -235,19 +273,14 @@ const AprobacionProfesores = ({ datosProfesores = PROFESORES_DEFAULT }) => {
         </table>
       </div>
 
-      {/* MODAL: REGISTRO MANUAL */}
-      {modalAbierto && (
+      {/* MODAL: ALTA / EDICIÓN */}
+      {modal && (
         <>
-          <div className="adm-modal-backdrop" onClick={() => setModalAbierto(false)} />
+          <div className="adm-modal-backdrop" onClick={cerrarModal} />
           <div className="adm-modal" role="dialog" aria-modal="true">
             <div className="adm-modal-head">
-              <h3>Registrar Profesor</h3>
-              <button
-                type="button"
-                className="adm-modal-close"
-                onClick={() => setModalAbierto(false)}
-                aria-label="Cerrar"
-              >
+              <h3>{modal.modo === 'crear' ? 'Registrar Profesor' : 'Editar Profesor'}</h3>
+              <button type="button" className="adm-modal-close" onClick={cerrarModal} aria-label="Cerrar">
                 ✕
               </button>
             </div>
@@ -281,26 +314,48 @@ const AprobacionProfesores = ({ datosProfesores = PROFESORES_DEFAULT }) => {
                 <label>Programa educativo<span className="adm-req">*</span></label>
                 <select name="programa" value={form.programa} onChange={cambiarCampo}>
                   <option value="">Seleccionar...</option>
-                  {PROGRAMAS.map((p) => (
+                  {programas.map((p) => (
                     <option key={p} value={p}>
                       {p}
                     </option>
                   ))}
                 </select>
+                {programas.length === 0 && (
+                  <span className="adm-error">
+                    No hay carreras registradas. Agrégalas en Administración → Carreras.
+                  </span>
+                )}
                 {errores.programa && <span className="adm-error">{errores.programa}</span>}
               </div>
 
-              <p className="apr-nota-modal">
-                El docente se registrará como <strong>Pendiente por Aprobar</strong> y no podrá
-                ingresar hasta que sea aprobado.
-              </p>
+              <div className="adm-field">
+                <label>
+                  Contraseña {modal.modo === 'crear' ? 'inicial' : '(dejar en blanco para no cambiarla)'}
+                  {modal.modo === 'crear' && <span className="adm-req">*</span>}
+                </label>
+                <input
+                  type="password"
+                  name="contrasena"
+                  value={form.contrasena}
+                  onChange={cambiarCampo}
+                  placeholder="••••••••"
+                />
+                {errores.contrasena && <span className="adm-error">{errores.contrasena}</span>}
+              </div>
+
+              {modal.modo === 'crear' && (
+                <p className="apr-nota-modal">
+                  El docente quedará <strong>Activo</strong> y podrá iniciar sesión con el correo y
+                  la contraseña indicados.
+                </p>
+              )}
 
               <div className="adm-form-actions">
-                <button type="button" className="adm-btn-cancelar" onClick={() => setModalAbierto(false)}>
+                <button type="button" className="adm-btn-cancelar" onClick={cerrarModal}>
                   Cancelar
                 </button>
                 <button type="submit" className="adm-btn-guardar">
-                  Registrar
+                  {modal.modo === 'crear' ? 'Registrar' : 'Guardar cambios'}
                 </button>
               </div>
             </form>

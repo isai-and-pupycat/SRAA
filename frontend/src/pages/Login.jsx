@@ -30,7 +30,7 @@ const Login = ({ alIngresar, alIrAEnlaces, alIrARegistro }) => {
     <div className="sraa-login-full-page">
       <div className="login-container">
         <h2>SRAA</h2>
-        <p>Sistema de Registro de Actividades de Clase</p>
+        <p>Sistema de Registro de Actividades Académicas</p>
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">

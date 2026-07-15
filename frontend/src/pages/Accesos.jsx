@@ -4,8 +4,8 @@ const sistemas = [
   {
     id: 'sraa',
     icon: '&#128221;',
-    title: 'SRAA',
-    tag: 'Actividades academicas',
+    title: 'Actividades Academicas',
+    tag: 'SRAA',
     description:
       'Sistema de Registro de Actividades Academicas, plataforma para la gestion, validacion y certificacion de evidencias docentes.',
     action: 'Ingresar al Sistema',
@@ -57,8 +57,8 @@ const sistemas = [
   {
     id: 'srpi',
     icon: '&#128300;',
-    title: 'SRPI',
-    tag: 'Investigacion',
+    title: 'Sistema de Registro de Proyectos',
+    tag: 'SRPI',
     description:
       'Sistema de Registro de Proyectos Institucionales. Repositorio de investigaciones y desarrollo tecnologico.',
     action: 'Visitar SRPI',

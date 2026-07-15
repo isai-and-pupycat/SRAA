@@ -14,7 +14,7 @@ const USUARIOS_DEMO = [
   {
     correo: 'isai.rosas@upb.edu.mx',
     contrasena: 'Docente2026',
-    usuario: { correo: 'isai.rosas@upb.edu.mx', nombre: 'Ing. Isai Rosas Canto', rol: 'docente' },
+    usuario: { id: 1, correo: 'isai.rosas@upb.edu.mx', nombre: 'Ing. Isai Rosas Canto', rol: 'docente' },
   },
 ];
 

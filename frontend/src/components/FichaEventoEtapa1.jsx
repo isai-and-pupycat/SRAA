@@ -1,36 +1,104 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './FichaEvento.css';
+import { obtenerCatalogo } from '../services/catalogosService';
+import { obtenerUsuarios } from '../services/usuariosService';
+import { obtenerSiguienteFolio } from '../services/fichaTecnicaService';
 
-const FichaEventoEtapa1 = ({ nombreActividad, setNombreActividad, alAvanzar, alCancelar }) => {
+const FichaEventoEtapa1 = ({
+  folio,
+  setFolio,
+  nombreActividad,
+  setNombreActividad,
+  alAvanzar,
+  alCancelar,
+  datosIniciales = null,          // datos de una ficha existente (modo edición)
+  textoBoton = 'Siguiente: Etapa 2',
+  alGuardar = null,               // si se pasa, se guarda en lugar de avanzar
+}) => {
+  // Valores previos (modo edición) o vacíos (modo creación).
+  const di = datosIniciales || {};
+
   // Estados para inputs convencionales
-  const [programa, setPrograma] = useState("Ingenieria en Tecnologias de la Informacion e Innovacion Digital");
-  const [lugar, setLugar] = useState("Laboratorio de Computo / Auditorio UPB");
-  const [fechaInicio, setFechaInicio] = useState("2026-06-16");
-  const [fechaFin, setFechaFin] = useState("2026-06-17");
-  const [horaInicio, setHoraInicio] = useState("09:00");
-  const [horaFin, setHoraFin] = useState("14:00");
-  const [tipoEvento, setTipoEvento] = useState("Academico");
-  const [objetivo, setObjetivo] = useState("Fomentar el desarrollo de soluciones tecnológicas innovadoras mediante el uso de análisis de datos abiertos, permitiendo a los estudiantes de la universidad aplicar competencias clave de ingeniería en escenarios del entorno real gubernamental.");
-  const [departamento, setDepartamento] = useState("");
-  const [requerimientos, setRequerimientos] = useState("Extensiones\nMesas\nLimpieza");
+  const [programa, setPrograma] = useState(di.programa || "");
+  const [cuatrimestre, setCuatrimestre] = useState(di.cuatrimestre || "");
+  const [lugar, setLugar] = useState(di.lugar || "");
+
+  // Catálogos cargados desde Administración (backend).
+  const [carrerasCat, setCarrerasCat] = useState([]);
+  const [cuatrisCat, setCuatrisCat] = useState([]);
+  // Usuarios reales del sistema (para el select de Responsables).
+  const [docentesCat, setDocentesCat] = useState([]);
+
+  useEffect(() => {
+    obtenerCatalogo('carreras')
+      .then((data) => setCarrerasCat(data))
+      .catch(() => setCarrerasCat([]));
+    obtenerCatalogo('cuatrimestres')
+      .then((data) => setCuatrisCat(data))
+      .catch(() => setCuatrisCat([]));
+    // Todos los usuarios APROBADOS (estatus activo), sin importar el rol.
+    obtenerUsuarios()
+      .then((data) => setDocentesCat(data.filter((u) => u.estatus === 'activo')))
+      .catch(() => setDocentesCat([]));
+  }, []);
+
+  // Aviso cuando no se puede generar el folio (ej. sin cuatrimestre activo).
+  const [folioAviso, setFolioAviso] = useState('');
+
+  // Solo al CREAR (no al editar): muestra la vista previa del folio correlativo.
+  useEffect(() => {
+    if (datosIniciales) return; // en edición se conserva el folio existente
+    obtenerSiguienteFolio()
+      .then((r) => { setFolio(r.folio); setFolioAviso(''); })
+      .catch((e) => setFolioAviso(e?.response?.data?.message || 'No se pudo generar el folio.'));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Opciones del select de Responsables (usuarios activos/aprobados del sistema).
+  const opcionesDocentes = docentesCat.map((d) => d.nombre).filter(Boolean);
+
+  // Opciones del select de Programa Educativo (carreras activas del catálogo).
+  const opcionesProgramas = (() => {
+    const activas = carrerasCat.filter((c) => c.estado !== 'Inactivo').map((c) => c.nombre);
+    // Conserva el valor actual (modo edición) aunque ya no esté en el catálogo.
+    if (programa && !activas.includes(programa)) return [programa, ...activas];
+    return activas;
+  })();
+
+  // Opciones del select de Cuatrimestre (periodos activos del catálogo).
+  const opcionesCuatris = (() => {
+    const activos = cuatrisCat.filter((c) => c.estado !== 'Inactivo').map((c) => c.nombre);
+    if (cuatrimestre && !activos.includes(cuatrimestre)) return [cuatrimestre, ...activos];
+    return activos;
+  })();
+  const [fechaInicio, setFechaInicio] = useState(di.fechaInicio || "");
+  const [fechaFin, setFechaFin] = useState(di.fechaFin || "");
+  const [horaInicio, setHoraInicio] = useState(di.horaInicio || "");
+  const [horaFin, setHoraFin] = useState(di.horaFin || "");
+  const [tipoEvento, setTipoEvento] = useState(di.tipoEvento || "");
+  const [objetivo, setObjetivo] = useState(di.objetivo || "");
+  const [departamento, setDepartamento] = useState(di.departamento || "");
+  const [requerimientos, setRequerimientos] = useState(di.requerimientos || "");
 
   // Estados para arreglos dinámicos (+ / x)
-  const [carreras, setCarreras] = useState([""]);
-  const [docentes, setDocentes] = useState([""]);
-  
+  const [carreras, setCarreras] = useState(di.carreras?.length ? di.carreras : [""]);
+  const [docentes, setDocentes] = useState(di.docentes?.length ? di.docentes : [""]);
+
   // Control de Invitados Especiales (Lógica Condicional)
-  const [requiereInvitados, setRequiereInvitados] = useState("si");
-  const [invitados, setInvitados] = useState([{ nombre: "", cargo: "" }]);
+  const [requiereInvitados, setRequiereInvitados] = useState(di.requiereInvitados || "si");
+  const [invitados, setInvitados] = useState(
+    di.invitados?.length ? di.invitados : [{ nombre: "", cargo: "" }]
+  );
 
   // Checkboxes de Servicios Requeridos
-  const [servicios, setServicios] = useState({
-    diseno: true,
-    fotografia: true,
-    redes: true
-  });
+  const [servicios, setServicios] = useState(
+    di.servicios || { diseno: false, fotografia: false, redes: false }
+  );
 
   // Servicios adicionales personalizados (filas dinámicas)
-  const [serviciosExtra, setServiciosExtra] = useState([""]);
+  const [serviciosExtra, setServiciosExtra] = useState(
+    di.serviciosExtra?.length ? di.serviciosExtra : [""]
+  );
 
   // Funciones manejadoras para campos dinámicos
   const handleAddCarrera = () => setCarreras([...carreras, ""]);
@@ -52,12 +120,17 @@ const FichaEventoEtapa1 = ({ nombreActividad, setNombreActividad, alAvanzar, alC
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Enviando datos de la Etapa 1 para revisión...", {
-      programa, lugar, nombreActividad, carreras, fechaInicio, fechaFin,
+    const datosEtapa1 = {
+      folio, programa, cuatrimestre, lugar, nombreActividad, carreras, fechaInicio, fechaFin,
       horaInicio, horaFin, tipoEvento, objetivo, docentes, requiereInvitados,
       invitados, requerimientos, departamento, servicios, serviciosExtra
-    });
-    alAvanzar(); // Pasa a la Etapa 2
+    };
+    // Modo edición: guarda los cambios. Modo creación: avanza a la Etapa 2.
+    if (alGuardar) {
+      alGuardar(datosEtapa1);
+    } else {
+      alAvanzar(datosEtapa1);
+    }
   };
 
   return (
@@ -89,21 +162,58 @@ const FichaEventoEtapa1 = ({ nombreActividad, setNombreActividad, alAvanzar, alC
 
       {/* FORMULARIO PRINCIPAL */}
       <form onSubmit={handleSubmit} className="ficha-evento-form-grid">
-        
-        {/* FILA 1: PROGRAMA Y LUGAR */}
+
+        {/* SECCIÓN: DATOS GENERALES */}
+        <h3 className="form-section-title">Datos Generales</h3>
+
+        <div className="form-field-group full-width-field">
+          <label>Folio <span className="form-hint-inline">(se genera automáticamente según el cuatrimestre activo)</span></label>
+          <input
+            type="text"
+            value={folio}
+            onChange={(e) => setFolio(e.target.value)}
+            readOnly={!datosIniciales}
+            required
+          />
+          {folioAviso && <span className="form-hint-inline" style={{ color: '#dc2626' }}>{folioAviso}</span>}
+        </div>
+
+        {/* FILA 1: PROGRAMA Y CUATRIMESTRE */}
         <div className="form-row-two-columns">
           <div className="form-field-group">
             <label>Programa Educativo</label>
-            <select value={programa} onChange={(e) => setPrograma(e.target.value)}>
-              <option value="Ingenieria en Tecnologias de la Informacion e Innovacion Digital">
-                Ingenieria en Tecnologias de la Informacion e Innovacion Digital
-              </option>
+            <select value={programa} onChange={(e) => setPrograma(e.target.value)} required>
+              <option value="">Seleccionar programa...</option>
+              {opcionesProgramas.map((nombre) => (
+                <option key={nombre} value={nombre}>{nombre}</option>
+              ))}
             </select>
+            {opcionesProgramas.length === 0 && (
+              <span className="form-hint-inline">
+                No hay carreras registradas. Agrégalas en Administración → Carreras.
+              </span>
+            )}
           </div>
           <div className="form-field-group">
-            <label>Lugar del Evento</label>
-            <input type="text" value={lugar} onChange={(e) => setLugar(e.target.value)} />
+            <label>Cuatrimestre</label>
+            <select value={cuatrimestre} onChange={(e) => setCuatrimestre(e.target.value)} required>
+              <option value="">Seleccionar cuatrimestre...</option>
+              {opcionesCuatris.map((nombre) => (
+                <option key={nombre} value={nombre}>{nombre}</option>
+              ))}
+            </select>
+            {opcionesCuatris.length === 0 && (
+              <span className="form-hint-inline">
+                No hay cuatrimestres registrados. Agrégalos en Administración → Cuatrimestres.
+              </span>
+            )}
           </div>
+        </div>
+
+        {/* LUGAR DEL EVENTO */}
+        <div className="form-field-group full-width-field">
+          <label>Lugar del Evento</label>
+          <input type="text" value={lugar} onChange={(e) => setLugar(e.target.value)} />
         </div>
 
         {/* FILA 2: NOMBRE Y GRUPOS DINÁMICOS */}
@@ -141,8 +251,8 @@ const FichaEventoEtapa1 = ({ nombreActividad, setNombreActividad, alAvanzar, alC
           <div className="form-field-group">
             <label>Vigencia del Evento (Fechas)</label>
             <div className="date-inputs-range">
-              <input type="date" value={fechaInicio} onChange={(e) => setFechaInicio(e.target.value)} />
-              <input type="date" value={fechaFin} onChange={(e) => setFechaFin(e.target.value)} />
+              <input type="date" value={fechaInicio} onChange={(e) => setFechaInicio(e.target.value)} required />
+              <input type="date" value={fechaFin} onChange={(e) => setFechaFin(e.target.value)} required />
             </div>
           </div>
           <div className="form-field-group">
@@ -155,10 +265,14 @@ const FichaEventoEtapa1 = ({ nombreActividad, setNombreActividad, alAvanzar, alC
           </div>
         </div>
 
+        {/* SECCIÓN: CATEGORIZACIÓN Y OBJETIVO */}
+        <h3 className="form-section-title">Categorización y Objetivo</h3>
+
         {/* FILA 4: TIPO DE EVENTO */}
         <div className="form-field-group full-width-field">
           <label>Tipo de Evento</label>
-          <select value={tipoEvento} onChange={(e) => setTipoEvento(e.target.value)}>
+          <select value={tipoEvento} onChange={(e) => setTipoEvento(e.target.value)} required>
+            <option value="">Seleccionar tipo...</option>
             <option value="Academico">Academico</option>
             <option value="Cultural">Cultural</option>
             <option value="Deportivo">Deportivo</option>
@@ -168,8 +282,11 @@ const FichaEventoEtapa1 = ({ nombreActividad, setNombreActividad, alAvanzar, alC
         {/* FILA 5: OBJETIVO TEXTAREA */}
         <div className="form-field-group full-width-field">
           <label>Objetivo</label>
-          <textarea rows="4" value={objetivo} onChange={(e) => setObjetivo(e.target.value)} />
+          <textarea rows="4" value={objetivo} onChange={(e) => setObjetivo(e.target.value)} required />
         </div>
+
+        {/* SECCIÓN: RESPONSABLES E INVITADOS */}
+        <h3 className="form-section-title">Responsables e Invitados</h3>
 
         {/* FILA 6: DOCENTES RESPONSABLES DINÁMICOS */}
         <div className="form-field-group full-width-field">
@@ -182,8 +299,13 @@ const FichaEventoEtapa1 = ({ nombreActividad, setNombreActividad, alAvanzar, alC
                 setDocentes(newDocentes);
               }}>
                 <option value="">Seleccionar Docente Responsable...</option>
-                <option value="isai">Ing. Isai Rosas Canto</option>
-                <option value="julio">Mtro. Julio Cen</option>
+                {/* Conserva el valor guardado aunque el docente ya no esté en la lista (modo edición). */}
+                {docente && !opcionesDocentes.includes(docente) && (
+                  <option value={docente}>{docente}</option>
+                )}
+                {opcionesDocentes.map((nombre) => (
+                  <option key={nombre} value={nombre}>{nombre}</option>
+                ))}
               </select>
               {index === 0 ? (
                 <button type="button" className="btn-dyn-add" onClick={handleAddDocente}>＋</button>
@@ -239,9 +361,11 @@ const FichaEventoEtapa1 = ({ nombreActividad, setNombreActividad, alAvanzar, alC
           )}
         </div>
 
-        {/* BLOQUE INFERIOR: REQUERIMIENTOS Y SERVICIOS (image_733f3b.png) */}
+        {/* SECCIÓN: REQUERIMIENTOS */}
+        <h3 className="form-section-title">Requerimientos</h3>
+
         <div className="lower-requirements-card">
-          
+
           <div className="form-field-group">
             <label>Requerimientos solicitados</label>
             <textarea rows="3" value={requerimientos} onChange={(e) => setRequerimientos(e.target.value)} />
@@ -252,9 +376,15 @@ const FichaEventoEtapa1 = ({ nombreActividad, setNombreActividad, alAvanzar, alC
             <input type="text" placeholder="Ej. Direccion de Division de Ingenierias" value={departamento} onChange={(e) => setDepartamento(e.target.value)} />
           </div>
 
+        </div>
+
+        {/* SECCIÓN: SERVICIOS REQUERIDOS */}
+        <h3 className="form-section-title">Servicios Requeridos</h3>
+
+        <div className="lower-requirements-card">
+
           <div className="services-checkboxes-section">
-            <label className="section-subtitle-label">Servicios Requeridos</label>
-            
+
             <label className="checkbox-item-row">
               <input type="checkbox" checked={servicios.diseno} onChange={(e) => setServicios({...servicios, diseno: e.target.checked})} />
               <span>Diseño de promocional <small>(La solicitud debe hacerse con un mínimo de 10 días hábiles)</small></span>
@@ -299,7 +429,7 @@ const FichaEventoEtapa1 = ({ nombreActividad, setNombreActividad, alAvanzar, alC
             Cancelar
           </button>
           <button type="submit" className="btn-submit-ficha-revision">
-            Siguiente: Etapa 
+            {textoBoton}
           </button>
         </div>
 

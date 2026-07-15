@@ -1,8 +1,10 @@
 import axios from 'axios';
 
-// Crear una instancia de axios apuntando a tu servidor local de Node
+// URL del backend:
+//  - En producción (nube) se define VITE_API_URL al compilar (ej. https://tu-backend.up.railway.app/api).
+//  - En local, si no está definida, usa el servidor local de Node.
 const API = axios.create({
-  baseURL: 'http://localhost:5000/api', // La URL de tu backend
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
 });
 
 // Middleware automático: Si hay un token guardado en el navegador, lo mete en las cabeceras de cada petición

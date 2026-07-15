@@ -1,66 +1,97 @@
+import { useState } from 'react';
 import '../Dashboard.css';
 
-const Dashboard = ({ alClickCrearFicha }) => {
+const NOMBRE_MES = [
+  'ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO',
+  'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE',
+];
+
+// dd/mm/aaaa -> { d, m, a }
+const parseFecha = (str) => {
+  if (!str || !str.includes('/')) return null;
+  const [d, m, a] = str.split('/').map((n) => parseInt(n, 10));
+  if (!d || !m || !a) return null;
+  return { d, m, a };
+};
+
+// Construye las celdas del mes (lunes primero), con días del mes anterior/siguiente en gris.
+const construirCeldas = (anio, mes) => {
+  const primerDia = new Date(anio, mes, 1).getDay(); // 0=Dom..6=Sáb
+  const offset = (primerDia + 6) % 7; // lunes = 0
+  const diasEnMes = new Date(anio, mes + 1, 0).getDate();
+  const diasMesPrev = new Date(anio, mes, 0).getDate();
+
+  const celdas = [];
+  for (let i = offset; i > 0; i -= 1) celdas.push({ dia: diasMesPrev - i + 1, muted: true });
+  for (let d = 1; d <= diasEnMes; d += 1) celdas.push({ dia: d, muted: false });
+  let sig = 1;
+  while (celdas.length % 7 !== 0) celdas.push({ dia: sig++, muted: true });
+  return celdas;
+};
+
+const Dashboard = ({ fichas = [], alClickCrearFicha = () => {}, alClickConstancias = () => {} }) => {
+  const hoy = new Date();
+  const [mes, setMes] = useState(hoy.getMonth());
+  const [anio, setAnio] = useState(hoy.getFullYear());
+
+  // Métricas reales a partir de las fichas del docente.
+  const total = fichas.length;
+  const validados = fichas.filter((f) => f.etapa1 === 'validado').length;
+  const enRevision = fichas.filter((f) => f.etapa1 !== 'validado').length;
+
+  // Eventos del mes visible, indexados por día.
+  const eventosDelMes = {};
+  fichas.forEach((f) => {
+    const p = parseFecha(f.fecha);
+    if (p && p.m === mes + 1 && p.a === anio) {
+      (eventosDelMes[p.d] = eventosDelMes[p.d] || []).push({
+        nombre: f.nombre,
+        validado: f.etapa1 === 'validado',
+      });
+    }
+  });
+
+  const celdas = construirCeldas(anio, mes);
+
+  const mesAnterior = () => {
+    if (mes === 0) { setMes(11); setAnio(anio - 1); } else setMes(mes - 1);
+  };
+  const mesSiguiente = () => {
+    if (mes === 11) { setMes(0); setAnio(anio + 1); } else setMes(mes + 1);
+  };
+
   return (
-    /* 🚀 REJILLA PRINCIPAL DE 3 COLUMNAS MOCKUP FIEL */
     <div className="dashboard-three-column-grid">
-      
-      {/* ================= COLUMNA 1: MI ACTIVIDAD ================= */}
+
+      {/* ============ COLUMNA 1: MI ACTIVIDAD (datos reales) ============ */}
       <section className="col-left-activity">
         <div className="activity-panel-card">
           <span className="panel-section-title">MI ACTIVIDAD</span>
-          
+
           <div className="metric-vertical-card border-blue">
-            <span className="m-num">12</span>
+            <span className="m-num">{total}</span>
             <span className="m-label">EVENTOS REGISTRADOS</span>
           </div>
-          
+
           <div className="metric-vertical-card border-green">
-            <span className="m-num">08</span>
-            <span className="m-label">AUTORIZADOS EN CALENDAR</span>
+            <span className="m-num">{validados}</span>
+            <span className="m-label">EVENTOS VALIDADOS</span>
           </div>
-          
+
           <div className="metric-vertical-card border-orange">
-            <span className="m-num">04</span>
+            <span className="m-num">{enRevision}</span>
             <span className="m-label">EN REVISIÓN</span>
           </div>
         </div>
       </section>
 
-      {/* ================= COLUMNA 2: CORE CENTRAL ================= */}
+      {/* ============ COLUMNA 2: CALENDARIO (funcional) ============ */}
       <section className="col-center-core">
-        
-        {/* FILA SUPERIOR: SINOPSIS DE FICHAS Y CONSTANCIAS */}
-        <div className="mini-stats-row">
-          <div className="mini-stat-box">
-            <span className="stat-icon">📄</span>
-            <div className="stat-info">
-              <strong>08</strong>
-              <span>FICHAS LIBERADAS</span>
-            </div>
-          </div>
-          <div className="mini-stat-box">
-            <span className="stat-icon">⏳</span>
-            <div className="stat-info">
-              <strong>04</strong>
-              <span>SOLICITUDES PENDIENTES</span>
-            </div>
-          </div>
-          <div className="mini-stat-box">
-            <span className="stat-icon">🏅</span>
-            <div className="stat-info">
-              <strong>15</strong>
-              <span>CONSTANCIAS EMITIDAS</span>
-            </div>
-          </div>
-        </div>
-
-        {/* El Calendario de Rejilla Central */}
         <div className="calendar-grid-container">
           <div className="calendar-nav-header">
-            <button className="cal-arrow">&lt;</button>
-            <span className="cal-month">MAYO 2026</span>
-            <button className="cal-arrow">&gt;</button>
+            <button type="button" className="cal-arrow" onClick={mesAnterior}>&lt;</button>
+            <span className="cal-month">{NOMBRE_MES[mes]} {anio}</span>
+            <button type="button" className="cal-arrow" onClick={mesSiguiente}>&gt;</button>
           </div>
 
           <div className="calendar-weekdays">
@@ -68,76 +99,48 @@ const Dashboard = ({ alClickCrearFicha }) => {
           </div>
 
           <div className="calendar-cells-grid">
-            {/* Fila 1 */}
-            <div className="c-cell muted"><span className="n">27</span></div>
-            <div className="c-cell muted"><span className="n">28</span></div>
-            <div className="c-cell muted"><span className="n">29</span></div>
-            <div className="c-cell muted"><span className="n">30</span></div>
-            <div className="c-cell"><span className="n">1</span></div>
-            <div className="c-cell"><span className="n">2</span></div>
-            <div className="c-cell"><span className="n">3</span></div>
-
-            {/* Fila 2 */}
-            <div className="c-cell"><span className="n">4</span></div>
-            <div className="c-cell has-tag">
-              <span className="n">5</span>
-              <div className="c-tag tag-green">Taller Arduino</div>
-            </div>
-            <div className="c-cell"><span className="n">6</span></div>
-            <div className="c-cell"><span className="n">7</span></div>
-            <div className="c-cell"><span className="n">8</span></div>
-            <div className="c-cell"><span className="n">9</span></div>
-            <div className="c-cell"><span className="n">10</span></div>
-
-            {/* Fila 3 */}
-            <div className="c-cell"><span className="n">11</span></div>
-            <div className="c-cell"><span className="n">12</span></div>
-            <div className="c-cell"><span className="n">13</span></div>
-            <div className="c-cell"><span className="n">14</span></div>
-            <div className="c-cell has-tag">
-              <span className="n">15</span>
-              <div className="c-tag tag-yellow">Evidencia Clase</div>
-            </div>
-            <div className="c-cell"><span className="n">16</span></div>
-            <div className="c-cell"><span className="n">17</span></div>
-
-            {/* Fila 4 */}
-            <div className="c-cell"><span className="n">18</span></div>
-            <div className="c-cell"><span className="n">19</span></div>
-            <div className="c-cell has-tag">
-              <span className="n">20</span>
-              <div className="c-tag tag-green">Lab. Redes</div>
-            </div>
-            <div className="c-cell"><span className="n">21</span></div>
-            <div className="c-cell"><span className="n">22</span></div>
-            <div className="c-cell"><span className="n">23</span></div>
-            <div className="c-cell"><span className="n">24</span></div>
+            {celdas.map((celda, i) => {
+              const eventos = !celda.muted ? (eventosDelMes[celda.dia] || []) : [];
+              return (
+                <div
+                  key={i}
+                  className={`c-cell ${celda.muted ? 'muted' : ''} ${eventos.length ? 'has-tag' : ''}`}
+                >
+                  <span className="n">{celda.dia}</span>
+                  {eventos.slice(0, 2).map((ev, k) => (
+                    <div key={k} className={`c-tag ${ev.validado ? 'tag-green' : 'tag-yellow'}`} title={ev.nombre}>
+                      {ev.nombre}
+                    </div>
+                  ))}
+                  {eventos.length > 2 && (
+                    <div className="c-tag tag-yellow">+{eventos.length - 2} más</div>
+                  )}
+                </div>
+              );
+            })}
           </div>
 
           <div className="calendar-legend-bottom">
-            <span className="leg"><span className="dot d-green"></span> Autorizado en Google Calendar</span>
-            <span className="leg"><span className="dot d-yellow"></span> Pendiente de Validación</span>
+            <span className="leg"><span className="dot d-green"></span> Validado por el coordinador</span>
+            <span className="leg"><span className="dot d-yellow"></span> Pendiente de validación</span>
           </div>
         </div>
-
       </section>
 
-      {/* ================= COLUMNA 3: RECURSOS Y ACTIVIDAD ================= */}
+      {/* ============ COLUMNA 3: ACCIONES ============ */}
       <section className="col-right-resources">
-        
-        {/* Caja de Formatos y Descargas */}
         <div className="resources-card">
           <span className="panel-section-title">FORMATOS Y DESCARGAS</span>
-          
+
           <div className="download-item-row">
             <div className="item-icon-title-pair">
               <span className="file-icon red-pdf">📄</span>
               <div className="file-meta">
-                <strong>Lista de Asistencia</strong>
-                <span>Formato PDF oficial para recolección de firmas físicas en el aula.</span>
+                <strong>Ficha de Evento</strong>
+                <span>Registra una nueva actividad académica y envíala al coordinador.</span>
               </div>
             </div>
-            <button className="btn-download-action" onClick={alClickCrearFicha}>
+            <button type="button" className="btn-download-action" onClick={alClickCrearFicha}>
               ➕ Crear Nueva Ficha de Evento
             </button>
           </div>
@@ -147,49 +150,14 @@ const Dashboard = ({ alClickCrearFicha }) => {
               <span className="file-icon green-badge">🏅</span>
               <div className="file-meta">
                 <strong>Mis Constancias</strong>
-                <span>Baja los certificados PDF de tus conferencias magistrales validadas.</span>
+                <span>Consulta y descarga las constancias emitidas a tu nombre.</span>
               </div>
             </div>
-            <button className="btn-download-action">⚙️ Obtener Constancias</button>
+            <button type="button" className="btn-download-action" onClick={alClickConstancias}>
+              🏅 Ver Mis Constancias
+            </button>
           </div>
         </div>
-
-        {/* Caja de Actividad Reciente Scrollable */}
-        <div className="resources-card activity-log-card">
-          <span className="panel-section-title icon-title">
-            <span className="bell-log-icon">🔔</span> Actividad Reciente
-          </span>
-          
-          <div className="scrollable-activity-list">
-            <div className="log-item-row">
-              <span className="log-dot dot-blue">✅</span>
-              <div className="log-text-content">
-                <strong>Ficha Técnica Autorizada</strong>
-                <p>El coordinador institucional aprobó los detalles finales de tu "Taller de Arduino Uno".</p>
-                <span className="log-time">Hace 15 minutos</span>
-              </div>
-            </div>
-
-            <div className="log-item-row">
-              <span className="log-dot dot-orange">⚠️</span>
-              <div className="log-text-content">
-                <strong>Ficha Técnica Devuelta</strong>
-                <p>Has solicitado correcciones en la ficha "ARTMOSFERA 2026".</p>
-                <span className="log-time">Hace 2 horas</span>
-              </div>
-            </div>
-
-            <div className="log-item-row">
-              <span className="log-dot dot-green">🏅</span>
-              <div className="log-text-content">
-                <strong>Constancias Disponibles</strong>
-                <p>Se liberaron los PDF de participación correspondientes al "Laboratorio de Redes Cisco".</p>
-                <span className="log-time">Ayer</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
       </section>
 
     </div>

@@ -5,7 +5,7 @@
 
 .ap-workspace {
   padding: 32px;
-  max-width: 1280px;
+  max-width: 1600px;
   margin: 0 auto;
   font-family: 'Segoe UI', Arial, sans-serif;
 }
@@ -149,20 +149,20 @@
 .ap-tabla {
   width: 100%;
   border-collapse: collapse;
-  min-width: 980px;
   /* Anchos fijos: la tabla no se deforma según el contenido */
   table-layout: fixed;
 }
 
-/* Anchos proporcionales por columna
-   N° 4% · Evento 30% · Docente 17% · Etapa1 12% · Etapa2 12% · Fecha 12% · Acción 13% */
+/* Anchos proporcionales de las 8 columnas (suman 100%)
+   N° 4% · Evento 24% · Docente 15% · Etapa1 12% · Etapa2 12% · Etapa3 12% · Fecha 11% · Acción 10% */
 .ap-tabla th:nth-child(1) { width: 4%; }
-.ap-tabla th:nth-child(2) { width: 30%; }
-.ap-tabla th:nth-child(3) { width: 17%; }
+.ap-tabla th:nth-child(2) { width: 24%; }
+.ap-tabla th:nth-child(3) { width: 15%; }
 .ap-tabla th:nth-child(4) { width: 12%; }
 .ap-tabla th:nth-child(5) { width: 12%; }
 .ap-tabla th:nth-child(6) { width: 12%; }
-.ap-tabla th:nth-child(7) { width: 13%; }
+.ap-tabla th:nth-child(7) { width: 11%; }
+.ap-tabla th:nth-child(8) { width: 10%; }
 
 .ap-tabla thead th {
   text-align: left;
@@ -171,10 +171,10 @@
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: #64748b;
-  padding: 16px 20px;
+  padding: 14px 14px;
   border-bottom: 2px solid #e2e8f0;
   background: #f8fafc;
-  white-space: nowrap;
+  white-space: normal;
   position: sticky;
   top: 0;
   z-index: 1;
@@ -182,7 +182,7 @@
 
 .ap-tabla tbody td {
   /* Espaciado interno uniforme: aire para toda la información */
-  padding: 16px 20px;
+  padding: 16px 14px;
   border-bottom: 1px solid #eef2f7;
   /* Alineación vertical: todo el contenido de la fila queda centrado */
   vertical-align: middle;

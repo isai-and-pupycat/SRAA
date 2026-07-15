@@ -1,0 +1,214 @@
+/* ============================================================
+   VISTA DE FICHA TÉCNICA (solo lectura)
+   ============================================================ */
+
+.ftv-workspace {
+  padding: 32px;
+  max-width: 900px;
+  margin: 0 auto;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+/* ---------- ENCABEZADO ---------- */
+.ftv-header-acciones {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ftv-volver {
+  background: transparent;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ftv-volver:hover {
+  background: #061e43;
+  color: #ffffff;
+  border-color: #061e43;
+}
+
+.ftv-descargar {
+  background: #061e43;
+  color: #ffffff;
+  border: none;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 9px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.ftv-descargar:hover {
+  background: #0a2c5f;
+}
+
+.ftv-header-titulo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.ftv-header-titulo h1 {
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: #061e43;
+}
+
+.ftv-folio {
+  font-size: 0.82rem;
+  color: #64748b;
+  background: #f1f5f9;
+  padding: 5px 14px;
+  border-radius: 999px;
+}
+
+.ftv-folio strong {
+  color: #061e43;
+}
+
+/* ---------- ESTADOS ---------- */
+.ftv-estados {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 18px 0 24px;
+}
+
+.ftv-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.ftv-badge-validado,
+.ftv-badge-finalizado {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.ftv-badge-pendiente {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+.ftv-badge-incompleto {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.ftv-badge-en-validacion {
+  background: #fef9c3;
+  color: #a16207;
+}
+
+/* ---------- TARJETAS ---------- */
+.ftv-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+  padding: 22px 24px;
+  margin-bottom: 18px;
+}
+
+.ftv-card h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #061e43;
+  padding-bottom: 10px;
+  margin-bottom: 16px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+/* ---------- CAMPOS ---------- */
+.ftv-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 24px;
+}
+
+.ftv-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ftv-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.ftv-value {
+  font-size: 0.9rem;
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.ftv-parrafo {
+  font-size: 0.9rem;
+  color: #334155;
+  line-height: 1.6;
+}
+
+.ftv-subseccion {
+  margin-bottom: 16px;
+}
+
+.ftv-subseccion:last-child {
+  margin-bottom: 0;
+}
+
+.ftv-lista {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ftv-lista li {
+  font-size: 0.88rem;
+  color: #334155;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border-radius: 6px;
+  border-left: 3px solid #061e43;
+}
+
+.ftv-vacio {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  font-style: italic;
+  margin-top: 6px;
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 640px) {
+  .ftv-workspace {
+    padding: 20px 12px;
+  }
+
+  .ftv-grid {
+    grid-template-columns: 1fr;
+  }
+}

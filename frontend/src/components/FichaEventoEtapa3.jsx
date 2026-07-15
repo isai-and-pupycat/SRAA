@@ -1,19 +1,49 @@
 import { useState } from 'react';
 import './FichaEventoEtapa3.css';
 
-const FichaEventoEtapa3 = ({ alFinalizar, alRetroceder }) => {
-  // Estados para los textos descriptivos de image_7ea45d.png
-  const [descripcion, setDescripcion] = useState(
-    'Se participó activamente en calidad de asesor técnico del equipo "Dataflow", integrado por estudiantes del programa educativo. Durante el desarrollo del Hackatón Come Datos 2025, el equipo se enfocó en el análisis, diseño e implementación de una plataforma web orientada al procesamiento de datos abiertos.'
-  );
-  
-  const [logroImpacto, setLogroImpacto] = useState(
-    'Se logró consolidar el prototipo funcional de la plataforma dentro de los tiempos estipulados por la convocatoria, obteniendo un reconocimiento destacado entre los proyectos finalistas.'
-  );
+// Convierte un archivo (File) a dataURL base64 para guardarlo / incrustarlo en el PDF.
+const archivoADataURL = (file) =>
+  new Promise((resolve) => {
+    if (!file) return resolve(null);
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result);
+    reader.onerror = () => resolve(null);
+    reader.readAsDataURL(file);
+  });
+
+const FichaEventoEtapa3 = ({
+  ficha,
+  folio,
+  alGuardarInforme,
+  alFinalizar,
+  alRetroceder,
+  textoBoton = 'Enviar',
+}) => {
+  // Datos previos del informe (si se está reeditando una ficha ya finalizada).
+  const previo = ficha?.etapa3 || {};
+  const folioActivo = ficha?.folio || folio;
+
+  // Estados para los textos descriptivos del Informe de Actividades.
+  const [descripcion, setDescripcion] = useState(previo.descripcion || '');
+
+  const [logroImpacto, setLogroImpacto] = useState(previo.logro || '');
+
+  // Beneficiarios: dato del Informe de Actividades (ej. "80 alumnos")
+  const [beneficiarios, setBeneficiarios] = useState(previo.beneficiarios || '');
+
+  // Responsables: se toman de la Etapa 1 (Docentes Responsables), no se recapturan.
+  const responsablesEtapa1 = (ficha?.tecnica?.docentes || []).filter((r) => r && r.trim());
+
+  // Se guarda mientras la ficha viaja al backend.
+  const [guardando, setGuardando] = useState(false);
 
   // Estados para almacenar la información de los archivos
   const [archivoAsistencia, setArchivoAsistencia] = useState(null);
   const [archivoEvidencia, setArchivoEvidencia] = useState(null);
+
+  // Descripción (pie de figura) de cada imagen. Precargadas al reeditar.
+  const [descAsistencia, setDescAsistencia] = useState(previo.fotos?.[0]?.titulo || '');
+  const [descEvidencia, setDescEvidencia] = useState(previo.fotos?.[1]?.titulo || '');
 
   const handleFileChange = (e, target) => {
     const file = e.target.files[0];
@@ -26,15 +56,54 @@ const FichaEventoEtapa3 = ({ alFinalizar, alRetroceder }) => {
     }
   };
 
-  const handleSubmitFinal = (e) => {
+  const handleSubmitFinal = async (e) => {
     e.preventDefault();
-    console.log('¡Formulario Finalizado! Enviando Ficha completa al servidor...', {
+
+    // Convierte las fotos a base64 y usa la descripción escrita como pie de figura.
+    const tituloAsist = descAsistencia.trim() || 'Asistentes del evento';
+    const tituloEvid = descEvidencia.trim() || 'Evidencia del evento';
+    const fotos = [];
+
+    const dataAsistencia = await archivoADataURL(archivoAsistencia);
+    if (dataAsistencia) {
+      fotos.push({ titulo: tituloAsist, datos: dataAsistencia });
+    } else if (previo.fotos?.[0]) {
+      // Sin nueva imagen: conserva la anterior pero actualiza su descripción.
+      fotos.push({ ...previo.fotos[0], titulo: tituloAsist });
+    }
+
+    const dataEvidencia = await archivoADataURL(archivoEvidencia);
+    if (dataEvidencia) {
+      fotos.push({ titulo: tituloEvid, datos: dataEvidencia });
+    } else if (previo.fotos?.[1]) {
+      fotos.push({ ...previo.fotos[1], titulo: tituloEvid });
+    }
+
+    const fotosFinales = fotos;
+
+    const datosInforme = {
       descripcion,
-      logroImpacto,
-      archivoAsistencia: archivoAsistencia?.name || 'No cargado',
-      archivoEvidencia: archivoEvidencia?.name || 'No cargado'
-    });
-    alFinalizar(); // Ejecuta el guardado y regresa al inicio
+      logro: logroImpacto,
+      // Responsables heredados de la Etapa 1 (o los que ya tenía el informe).
+      responsables: responsablesEtapa1.length ? responsablesEtapa1 : (previo.responsables || []),
+      beneficiarios,
+      lugar: ficha?.tecnica?.lugar || '',
+      fotos: fotosFinales,
+    };
+
+    // Flujo real (docente desde el Listado): guarda el informe en el backend.
+    if (alGuardarInforme && ficha?.id) {
+      try {
+        setGuardando(true);
+        await alGuardarInforme(ficha.id, datosInforme);
+      } finally {
+        setGuardando(false);
+      }
+      return;
+    }
+
+    // Flujo legado (creación directa sin ficha asociada): solo finaliza.
+    if (alFinalizar) alFinalizar();
   };
 
   return (
@@ -60,7 +129,15 @@ const FichaEventoEtapa3 = ({ alFinalizar, alRetroceder }) => {
 
       {/* FORMULARIO FINAL */}
       <form onSubmit={handleSubmitFinal} className="ficha-final-form-flow">
-        
+
+        {/* ENCABEZADO DEL INFORME + FOLIO ENLAZADO */}
+        <div className="final-informe-header">
+          <h3 className="final-section-title">Informe de Actividades</h3>
+          {folioActivo && (
+            <span className="final-folio">Folio: <strong>{folioActivo}</strong></span>
+          )}
+        </div>
+
         {/* CAMPO: DESCRIPCIÓN */}
         <div className="final-field-group">
           <label className="final-input-label">Descripción</label>
@@ -83,6 +160,19 @@ const FichaEventoEtapa3 = ({ alFinalizar, alRetroceder }) => {
           />
         </div>
 
+        {/* CAMPO: BENEFICIARIOS / NÚMERO (dato del Informe de Actividades) */}
+        <div className="final-field-group">
+          <label className="final-input-label">Beneficiarios / número</label>
+          <input
+            type="number"
+            min="0"
+            className="final-input"
+            placeholder="Ej. 80"
+            value={beneficiarios}
+            onChange={(e) => setBeneficiarios(e.target.value)}
+          />
+        </div>
+
         {/* ZONA DE CARGA: LISTA DE ASISTENCIA */}
         <div className="final-field-group">
           <label className="final-input-label section-heading-label">Lista de asistencia</label>
@@ -101,6 +191,15 @@ const FichaEventoEtapa3 = ({ alFinalizar, alRetroceder }) => {
               <p className="secondary-drop-text">Formatos soportados: JPG, PNG, PDF.</p>
             </div>
           </label>
+          {/* Descripción / pie de la Figura 01 */}
+          <input
+            type="text"
+            className="final-input"
+            placeholder="Descripción de la imagen (pie de Figura 01)"
+            value={descAsistencia}
+            onChange={(e) => setDescAsistencia(e.target.value)}
+            style={{ marginTop: '8px' }}
+          />
         </div>
 
         {/* ZONA DE CARGA: EVIDENCIA FOTOGRÁFICA */}
@@ -121,13 +220,22 @@ const FichaEventoEtapa3 = ({ alFinalizar, alRetroceder }) => {
               <p className="secondary-drop-text">Formatos soportados: JPG, PNG (Máx. 5MB por foto)</p>
             </div>
           </label>
+          {/* Descripción / pie de la Figura 02 */}
+          <input
+            type="text"
+            className="final-input"
+            placeholder="Descripción de la imagen (pie de Figura 02)"
+            value={descEvidencia}
+            onChange={(e) => setDescEvidencia(e.target.value)}
+            style={{ marginTop: '8px' }}
+          />
         </div>
 
         {/* ACCIONES DE NAVEGACIÓN DEL FORMULARIO */}
         <div className="stage3-footer-navigation">
           <button type="button" className="btn-nav-back" onClick={alRetroceder}>Atrás</button>
-          <button type="submit" className="btn-submit-finalize-form">
-            ENVIAR PARA FINALIZAR
+          <button type="submit" className="btn-submit-finalize-form" disabled={guardando}>
+            {guardando ? 'GUARDANDO…' : textoBoton}
           </button>
         </div>
 

@@ -50,6 +50,33 @@
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
+/* Nombre de la actividad en solo lectura (definido en la Etapa 1) */
+.agenda-nombre-display {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  padding: 12px 16px;
+  background: #f1f5f9;
+  border-left: 4px solid #061e43;
+  border-radius: 6px;
+}
+
+.agenda-nombre-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.agenda-nombre-titulo {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #061e43;
+}
+
 /* FILA DEL FILTRO DE OPCIÓN (SÍ/NO) */
 .agenda-radio-row {
   display: flex;

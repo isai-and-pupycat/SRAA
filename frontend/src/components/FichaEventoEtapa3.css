@@ -50,6 +50,53 @@
   box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.1);
 }
 
+/* Encabezado del Informe + Folio enlazado */
+.final-informe-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-bottom: 10px;
+  margin-bottom: 6px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.final-section-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #061e43;
+}
+
+.final-folio {
+  font-size: 0.8rem;
+  color: #64748b;
+  background: #f1f5f9;
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+
+.final-folio strong {
+  color: #061e43;
+}
+
+/* Input de una línea (mismo estilo que el textarea) */
+.final-input {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  color: #334155;
+  background-color: #ffffff;
+}
+
+.final-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.1);
+}
+
 /* ZONAS DE CARGA DE ARCHIVOS DRAG & DROP */
 .file-drop-zone-container {
   border: 1px solid #cbd5e1;
