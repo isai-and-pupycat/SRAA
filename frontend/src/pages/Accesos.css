@@ -1,22 +1,71 @@
 .accesos-body {
+  position: relative;
   min-height: 100vh;
   width: 100%;
+  overflow-x: hidden;
+  isolation: isolate;
   background:
-    linear-gradient(180deg, rgba(6, 30, 67, 0.05), rgba(6, 30, 67, 0) 320px),
-    #f4f7fb;
+    radial-gradient(1100px 620px at 12% -8%, rgba(11, 120, 166, 0.16), transparent 60%),
+    radial-gradient(980px 560px at 108% 4%, rgba(59, 91, 219, 0.14), transparent 58%),
+    radial-gradient(900px 700px at 50% 118%, rgba(11, 95, 148, 0.12), transparent 62%),
+    linear-gradient(180deg, #eef4fb 0%, #f4f7fb 46%, #eaf1fa 100%);
   color: #061e43;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+/* Orbes de color suaves y difuminados que flotan detrás del contenido */
+.accesos-body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(340px 340px at 18% 30%, rgba(11, 120, 166, 0.22), transparent 70%),
+    radial-gradient(300px 300px at 82% 22%, rgba(111, 66, 193, 0.16), transparent 70%),
+    radial-gradient(380px 380px at 88% 78%, rgba(22, 131, 74, 0.14), transparent 70%),
+    radial-gradient(320px 320px at 8% 82%, rgba(59, 91, 219, 0.16), transparent 70%);
+  filter: blur(6px);
+  animation: accesos-flotar 16s ease-in-out infinite alternate;
+}
+
+/* Textura sutil de puntos para dar profundidad */
+.accesos-body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(rgba(6, 30, 67, 0.05) 1px, transparent 1px);
+  background-size: 26px 26px;
+  mask-image: linear-gradient(180deg, transparent 0, #000 180px, #000 70%, transparent 100%);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 180px, #000 70%, transparent 100%);
+}
+
+@keyframes accesos-flotar {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(0, -18px, 0) scale(1.04); }
+  100% { transform: translate3d(0, 10px, 0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .accesos-body::before { animation: none; }
+}
+
 .topbar-accesos {
+  position: sticky;
+  top: 0;
+  z-index: 5;
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 112px;
   padding: 18px 32px;
-  background: #ffffff;
-  border-bottom: 1px solid #dbe4ef;
-  box-shadow: 0 10px 24px rgba(6, 30, 67, 0.06);
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: saturate(140%) blur(12px);
+  -webkit-backdrop-filter: saturate(140%) blur(12px);
+  border-bottom: 1px solid rgba(219, 228, 239, 0.9);
+  box-shadow: 0 10px 30px rgba(6, 30, 67, 0.08);
 }
 
 .topbar-center {
@@ -83,13 +132,15 @@
   min-height: 248px;
   position: relative;
   overflow: hidden;
-  background: #ffffff;
-  border: 1px solid #dce6f1;
-  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(220, 230, 241, 0.9);
+  border-radius: 14px;
   padding: 22px;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 14px 34px rgba(6, 30, 67, 0.08);
+  box-shadow: 0 18px 40px rgba(6, 30, 67, 0.1);
   transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
 }
 
