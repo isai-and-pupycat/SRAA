@@ -66,17 +66,17 @@ const FichaEventoEtapa3 = ({
 
     const dataAsistencia = await archivoADataURL(archivoAsistencia);
     if (dataAsistencia) {
-      fotos.push({ titulo: tituloAsist, datos: dataAsistencia });
+      fotos.push({ tipo: 'asistencia', titulo: tituloAsist, datos: dataAsistencia });
     } else if (previo.fotos?.[0]) {
       // Sin nueva imagen: conserva la anterior pero actualiza su descripción.
-      fotos.push({ ...previo.fotos[0], titulo: tituloAsist });
+      fotos.push({ ...previo.fotos[0], tipo: 'asistencia', titulo: tituloAsist });
     }
 
     const dataEvidencia = await archivoADataURL(archivoEvidencia);
     if (dataEvidencia) {
-      fotos.push({ titulo: tituloEvid, datos: dataEvidencia });
+      fotos.push({ tipo: 'evidencia', titulo: tituloEvid, datos: dataEvidencia });
     } else if (previo.fotos?.[1]) {
-      fotos.push({ ...previo.fotos[1], titulo: tituloEvid });
+      fotos.push({ ...previo.fotos[1], tipo: 'evidencia', titulo: tituloEvid });
     }
 
     const fotosFinales = fotos;

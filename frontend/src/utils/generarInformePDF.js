@@ -208,26 +208,49 @@ export const generarInformePDF = async (ficha) => {
   parrafoEtiquetado('Beneficiarios / número:', beneficiariosTexto);
   parrafoEtiquetado('Lugar:', lugar);
 
-  // ---------- EVIDENCIA FOTOGRÁFICA (Figuras) ----------
+  // ---------- IMÁGENES: separadas por tipo ----------
   const fotos = (inf.fotos || []).filter(Boolean);
-  if (fotos.length) {
+  // La lista de asistencia es la foto marcada 'asistencia' (o, en datos viejos,
+  // la primera del arreglo). El resto es evidencia fotográfica.
+  const fotosAsistencia = fotos.filter((f, i) => f.tipo === 'asistencia' || (!f.tipo && i === 0));
+  const fotosEvidencia = fotos.filter((f, i) => f.tipo === 'evidencia' || (!f.tipo && i > 0));
+
+  // Título de sección con regla azul debajo.
+  const dibujarTituloSeccion = (texto) => {
+    asegurarEspacio(12);
     y += 4;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.setTextColor(...AZUL);
+    doc.text(texto, margen, y);
+    y += 2;
+    doc.setDrawColor(...AZUL);
+    doc.setLineWidth(0.4);
+    doc.line(margen, y, anchoPagina - margen, y);
+    y += 6;
+  };
+
+  // Dibuja una galería de imágenes.
+  //  - cols=1  → una imagen grande y centrada (para la lista de asistencia).
+  //  - cols=2  → dos por fila con etiqueta "Figura NN" (evidencia).
+  const dibujarGaleria = (lista, cols, etiquetaBase, textoPorDefecto) => {
     const gap = 6;
-    const celdaW = (anchoUtil - gap) / 2;
-    const imgH = 52;
+    const celdaW = cols === 1 ? anchoUtil * 0.72 : (anchoUtil - gap) / 2;
+    const imgH = cols === 1 ? 88 : 52;
     const capH = 7;
     const bloqueH = imgH + capH + 4;
 
-    for (let i = 0; i < fotos.length; i += 2) {
+    for (let i = 0; i < lista.length; i += cols) {
       asegurarEspacio(bloqueH);
-      const fila = fotos.slice(i, i + 2);
+      const fila = lista.slice(i, i + cols);
       fila.forEach((foto, j) => {
-        const x = margen + j * (celdaW + gap);
+        const x = cols === 1
+          ? margen + (anchoUtil - celdaW) / 2
+          : margen + j * (celdaW + gap);
         // Marco de la figura.
         doc.setDrawColor(150);
         doc.rect(x, y, celdaW, imgH);
         try {
-          // Ajusta la imagen dentro del marco conservando su proporción.
           const props = doc.getImageProperties(foto.datos);
           const esc = Math.min((celdaW - 3) / props.width, (imgH - 3) / props.height);
           const w = props.width * esc;
@@ -243,15 +266,25 @@ export const generarInformePDF = async (ficha) => {
         doc.setTextColor(40);
         doc.setFont('helvetica', 'bold');
         const num = String(i + j + 1).padStart(2, '0');
-        const cap = `Figura ${num}.- ${foto.titulo || 'Evidencia del evento'}`;
-        doc.text(
-          doc.splitTextToSize(cap, celdaW - 4),
-          x + 2,
-          y + imgH + 4.5
-        );
+        const cap = etiquetaBase
+          ? `${etiquetaBase} ${num}.- ${foto.titulo || textoPorDefecto}`
+          : (foto.titulo || textoPorDefecto);
+        doc.text(doc.splitTextToSize(cap, celdaW - 4), x + 2, y + imgH + 4.5);
       });
       y += bloqueH;
     }
+  };
+
+  // ---------- LISTA DE ASISTENCIA (sección propia) ----------
+  if (fotosAsistencia.length) {
+    dibujarTituloSeccion('LISTA DE ASISTENCIA');
+    dibujarGaleria(fotosAsistencia, 1, '', 'Lista de asistencia del evento');
+  }
+
+  // ---------- EVIDENCIA FOTOGRÁFICA (Figuras) ----------
+  if (fotosEvidencia.length) {
+    dibujarTituloSeccion('EVIDENCIA FOTOGRÁFICA');
+    dibujarGaleria(fotosEvidencia, 2, 'Figura', 'Evidencia del evento');
   }
 
   // ---------- PIE DE PÁGINA (número + regla azul en cada página) ----------
